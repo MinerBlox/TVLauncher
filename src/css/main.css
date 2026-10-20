@@ -871,3 +871,21 @@ html, body, #maindiv, #prefetchmaindiv { background: #fdfdfd; color: #111; }
 	border-radius:999px; opacity:.92;
 	background:linear-gradient(90deg,#ffd928 0 17%,transparent 17% 20%,#ff285f 20% 38%,transparent 38% 41%,#15b4ff 41% 59%,transparent 59% 62%,#00d9b8 62% 80%,transparent 80% 83%,#c341f2 83% 100%);
 }
+
+/* Keep the five reference tiles visible even when the TV reports no installed apps. */
+#appbar > label { display: none !important; }
+#featurecards { display: contents; }
+#appbar > .appitem { display: none !important; }
+.featuretile {
+	position: relative; display: flex; align-items: center; justify-content: center; min-width: 0;
+	width: 100%; height: 16.8vh; padding: 10%; box-sizing: border-box; border: 0; border-radius: 2.5vh;
+	box-shadow: 0 1.1vh 1.6vh rgba(0,0,0,.17); transition: transform .18s ease, box-shadow .18s ease;
+}
+.featuretile:nth-child(1) { background:#151719; }
+.featuretile:nth-child(2) { background:linear-gradient(145deg,#ff694e,#fb0b53); }
+.featuretile:nth-child(3) { background:#121518; }
+.featuretile:nth-child(4) { background:linear-gradient(145deg,#ff3d77,#ed174e); }
+.featuretile:nth-child(5) { background:linear-gradient(145deg,#0aa8ff,#063bd8); }
+.featuretile svg { display:block; width:100%; height:100%; fill:white; }
+.featuretile.dfocus, .featuretile:hover { transform:scale(1.045); box-shadow:0 1.7vh 2.5vh rgba(0,0,0,.23); }
+.featuretile.dfocus { outline:.35vh solid rgba(255,255,255,.95); outline-offset:.55vh; }
