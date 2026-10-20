@@ -344,6 +344,7 @@ function onkey(event) {
 		return;
 	}
 	if(code===KEY_BACK){
+		if(contextname()==="services" || contextname()==="homekeyboard"){ event.preventDefault(); }
 		handleback();
 		return;
 	}
