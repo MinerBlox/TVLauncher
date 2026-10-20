@@ -1,16 +1,7 @@
-# Bundled streaming icons
+# Streaming artwork setup
 
-The branch now includes six vector streaming tiles directly in `src/access/brands/`:
+The launcher expects the original uploaded logo artwork in `src/access/brands/` as `netflix.jpg`, `disney.jpg`, `iplayer.jpg`, `youtube.jpg`, `itvx.jpg`, and `appletv.jpg`.
 
-- netflix.svg
-- disney.svg
-- iplayer.svg
-- youtube.svg
-- itvx.svg
-- appletv.svg
+The six imprecise hand-drawn SVG alternatives were removed. The real uploaded images are in the supplied `TVLauncher_official_icons.zip` package and are not yet committed to this branch. To include them, extract the package into the repository root and commit the `src/access/brands/*.jpg` files. GitHub's browser UI supports uploading files; the connector currently cannot upload binary files directly.
 
-The launcher automatically displays them for matching app names/IDs, or for simulator sample tiles. These are lightweight vector recreations of the supplied brand references, not byte-for-byte copies of the uploaded JPG images.
-
-**To preview:** download or pull the current `design/white-dotted-tv-ui` branch, and select the `src` folder through Simulator → File → Launch App. No additional logo ZIP is needed.
-
-Simulator sample tiles are not working streaming services. On the physical TV, launching installed apps still requires privilege and app-ID compatibility testing.
+Until the actual JPGs are committed, the simulator uses bundled illustrative fallbacks. This is not an exact logo preview. Existing app launch logic remains unchanged.
