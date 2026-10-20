@@ -75,6 +75,7 @@ function appmenuopen() {
 }
 
 function contextname() {
+	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){ return "homekeyboard"; }
 	if(renameopen()){ return "rename"; }
 	if(folderpickeropen()){ return "picker"; }
 	if(appmenuopen()){ return "menu"; }
@@ -84,6 +85,7 @@ function contextname() {
 }
 
 function contextelements() {
+	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){ return within(document.getElementById("homekeyboard"),"button"); }
 	if(renameopen()){ return within(renamebox,"button, input"); }
 	if(folderpickeropen()){ return within(folderpicker,"button, input"); }
 	if(appmenuopen()){ return within(appmenu,"button"); }
@@ -260,6 +262,10 @@ function movecarriedbykey(key) {
 
 // ---- keys
 function handleback() {
+	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){
+		closeHomeKeyboard();
+		return;
+	}
 	if(istyping()){
 		document.activeElement.blur();
 	} else if(carrying){
@@ -314,6 +320,12 @@ function shortcut(code) {
 
 function onkey(event) {
 	const code=event.keyCode;
+	if(code===KEY_UP && contextname()==="home" && typeof openHomeKeyboard==="function"){
+		event.preventDefault();
+		keyboardmode=true;
+		openHomeKeyboard();
+		return;
+	}
 	if(code===KEY_BACK){
 		handleback();
 		return;
