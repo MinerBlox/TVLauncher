@@ -38,3 +38,12 @@ body:before {
 #drawertools { right:3vw; bottom:26vh; }
 #editbtn,#settingsbtn { color:#171b23 !important; background:rgba(255,255,255,.9) !important; border:1px solid #ccd1db !important; }
 @media(max-width:700px){#tonight-hero{width:82vw}#appbar{left:3vw;width:94vw;border-radius:22px}#tonight-search{min-height:44px}#tonight-chevron{top:4%}}
+
+/* Distinguish simulator-only sample artwork from genuine installed apps. */
+#tonight-demo-banner { position:fixed; top:12px; right:18px; z-index:12000; padding:9px 15px;
+ font:600 13px Arial,sans-serif; color:#455266; background:rgba(255,255,255,.94);
+ border:1px solid #ccd4de; border-radius:16px; box-shadow:0 4px 16px rgba(60,73,93,.1); }
+#appbar .appicon { object-fit:fill !important; height:17vh; width:100%; }
+#appbar .appitem { min-width:0; }
+#appluncher .appicon { aspect-ratio:360/220; object-fit:cover; }
+#realappbarbtu:checked ~ #appluncher { grid-template-columns:repeat(6,minmax(0,1fr)) !important; }
