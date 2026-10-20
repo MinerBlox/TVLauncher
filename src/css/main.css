@@ -850,3 +850,24 @@ html, body, #maindiv, #prefetchmaindiv { background: #fdfdfd; color: #111; }
 	background: rgba(18,20,28,.96); color: #fff;
 }
 #realappbarbtu:checked ~ #homehero { display: none; }
+
+/* Five icon treatments echo the reference while each tile remains its real pinned app. */
+#appbar .appitem:nth-child(1)::after { content:""; position:absolute; inset:0; margin:auto; width:68%; height:58%; background:center / contain no-repeat url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20160%20100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M54%2044c-6%200-10%205-16%205-8%200-13-7-13-16%200-12%209-21%2020-21%206%200%2010%204%2015%204%205%200%209-4%2015-4%207%200%2013%204%2017%2010-13%208-11%2026%202%2032-3%207-8%2014-14%2014-5%200-8-3-14-3-6%200-10%203-15%203-8%200-16-13-16-26%200-8%204-14%2011-16%207-2%2013%200%2018%203zM65%208c1-8%208-14%2016-14%200%208-6%2015-14%2016z%22%2F%3E%3Ctext%20x%3D%2294%22%20y%3D%2270%22%20fill%3D%22white%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%2243%22%20font-weight%3D%22500%22%3Etv%3C%2Ftext%3E%3C%2Fsvg%3E"); pointer-events:none; }
+#appbar .appitem:nth-child(2)::after { content:""; position:absolute; inset:0; margin:auto; width:58%; height:58%; background:center / contain no-repeat url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M28%2059%2050%2070l22-11-22-11z%22%2F%3E%3Cpath%20d%3D%22m31%2072%2019%2010%2019-10%22%2F%3E%3Cpath%20d%3D%22M50%2045V28%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2218%22%20r%3D%227%22%20fill%3D%22white%22%20stroke%3D%22none%22%2F%3E%3Ccircle%20cx%3D%2227%22%20cy%3D%2256%22%20r%3D%223%22%20fill%3D%22white%22%20stroke%3D%22none%22%2F%3E%3Ccircle%20cx%3D%2273%22%20cy%3D%2256%22%20r%3D%223%22%20fill%3D%22white%22%20stroke%3D%22none%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); pointer-events:none; }
+#appbar .appitem:nth-child(3)::after { content:""; position:absolute; inset:0; margin:auto; width:58%; height:58%; background:center / contain no-repeat url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2238%22%20fill%3D%22none%22%20stroke%3D%22%23ff1766%22%20stroke-width%3D%228%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2227%22%20fill%3D%22none%22%20stroke%3D%22%23b8ff00%22%20stroke-width%3D%228%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2216%22%20fill%3D%22none%22%20stroke%3D%22%2320e4dc%22%20stroke-width%3D%228%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%225%22%20fill%3D%22%2320e4dc%22%2F%3E%3C%2Fsvg%3E"); pointer-events:none; }
+#appbar .appitem:nth-child(4)::after { content:""; position:absolute; inset:0; margin:auto; width:58%; height:58%; background:center / contain no-repeat url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M57%2018v48c0%209-8%2016-18%2016-7%200-12-4-12-10s6-11%2014-11c3%200%206%201%208%202V29l32-8v38c0%209-8%2016-18%2016-7%200-12-4-12-10s6-11%2014-11c3%200%206%201%208%202V17z%22%2F%3E%3C%2Fsvg%3E"); pointer-events:none; }
+#appbar .appitem:nth-child(5)::after { content:""; position:absolute; inset:0; margin:auto; width:58%; height:58%; background:center / contain no-repeat url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M50%2020%2026%2076M50%2020l25%2056M38%2052h25%22%2F%3E%3Cpath%20d%3D%22M18%2080h64%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); pointer-events:none; }
+
+#appbar .appitem:nth-child(3) { background: #121518; }
+#appbar .appitem:nth-child(4) { background: linear-gradient(145deg,#ff3d77,#ed174e); }
+#appbar { overflow: visible; }
+#appbar::before {
+	content:""; position:absolute; z-index:-1; left:2.2vw; right:2.2vw; bottom:-6.4vh; height:2.2vh;
+	border-radius:999px; filter:blur(7px); opacity:.65;
+	background:linear-gradient(90deg,#ffd928 0 17%,transparent 17% 20%,#ff285f 20% 38%,transparent 38% 41%,#15b4ff 41% 59%,transparent 59% 62%,#00d9b8 62% 80%,transparent 80% 83%,#c341f2 83% 100%);
+}
+#appbar::after {
+	content:""; position:absolute; z-index:-1; left:2.2vw; right:2.2vw; bottom:-6.1vh; height:2vh;
+	border-radius:999px; opacity:.92;
+	background:linear-gradient(90deg,#ffd928 0 17%,transparent 17% 20%,#ff285f 20% 38%,transparent 38% 41%,#15b4ff 41% 59%,transparent 59% 62%,#00d9b8 62% 80%,transparent 80% 83%,#c341f2 83% 100%);
+}
