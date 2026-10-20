@@ -25,6 +25,14 @@
 	     background.js loads, and decides the real Video source (may leave this playing, or hand off to it) same as before. -->
 	<video id="bgvideo" autoplay muted playsinline></video>
 	<script>bgvideo.src="access/wallpaper/loop.mp4";bgvideo.play().catch(()=>{});</script>
+	<div id="homehero" aria-label="OpenLauncher home">
+		<button id="drawerhandle" aria-label="Browse apps" title="Browse apps"><svg viewBox="0 0 32 16" aria-hidden="true"><path d="M3 12 16 4l13 8" /></svg></button>
+		<h1>What are we watching today?</h1>
+		<label id="homesearch">
+			<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"></circle><path d="m20 20 9 9"></path></svg>
+			<input id="appsearch" type="search" placeholder="Search for a movie or TV show..." autocomplete="off" aria-label="Search apps">
+		</label>
+	</div>
 	<div id="prefetchmaindiv">
 	<!-- Hack : make appluncher always loaded (just hidden) so it can be faster when i open/close it -->
 	<div id="maindiv">
@@ -146,6 +154,36 @@
 <script src="js/info.js"></script>
 <script src="js/screen.js"></script>
 <script src="js/main.js"></script>
+
+<script>
+(function () {
+	const search = document.getElementById("appsearch");
+	const toggle = document.getElementById("realappbarbtu");
+	const drawer = document.getElementById("drawerhandle");
+	function filterApps() {
+		const query = search.value.trim().toLocaleLowerCase();
+		document.querySelectorAll("#appluncher .appitem").forEach(function (tile) {
+			const name = tile.querySelector(".appname");
+			tile.style.display = !query || (name && name.textContent.toLocaleLowerCase().includes(query)) ? "" : "none";
+		});
+	}
+	function openDrawer() {
+		toggle.checked = true;
+		filterApps();
+		search.focus();
+	}
+	drawer.addEventListener("click", openDrawer);
+	search.addEventListener("focus", openDrawer);
+	search.addEventListener("input", function () { openDrawer(); filterApps(); });
+	search.addEventListener("keydown", function (event) {
+		if (event.key === "Enter") {
+			const first = Array.from(document.querySelectorAll("#appluncher .appitem")).find(function (tile) { return tile.style.display !== "none"; });
+			if (first) first.click();
+		}
+		if (event.key === "Escape") { search.blur(); }
+	});
+})();
+</script>
 </body>
 
 </html>
