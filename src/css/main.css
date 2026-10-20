@@ -889,3 +889,41 @@ html, body, #maindiv, #prefetchmaindiv { background: #fdfdfd; color: #111; }
 .featuretile svg { display:block; width:100%; height:100%; fill:white; }
 .featuretile.dfocus, .featuretile:hover { transform:scale(1.045); box-shadow:0 1.7vh 2.5vh rgba(0,0,0,.23); }
 .featuretile.dfocus { outline:.35vh solid rgba(255,255,255,.95); outline-offset:.55vh; }
+
+/* Reference-matched home: the supplied image is the home artwork at 16:9. */
+#homehero {
+  background: #fff url("../access/home-reference.png") center center / 100% 100% no-repeat !important;
+}
+#homehero h1, #drawerhandle svg, #homesearch svg { visibility: hidden !important; }
+#drawerhandle { cursor: pointer; }
+#homesearch {
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+}
+#appsearch, #appsearch::placeholder { color: transparent !important; }
+#appsearch { cursor: text; }
+#appbar {
+  background: transparent !important; box-shadow: none !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+#appbar::before, #appbar::after { display: none !important; }
+#featurecards .featuretile {
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+  transform: none !important; cursor: pointer;
+}
+#featurecards .featuretile svg { visibility: hidden !important; }
+#featurecards .featuretile:hover, #featurecards .featuretile.dfocus {
+  outline: .35vh solid rgba(255,255,255,.9) !important;
+  outline-offset: .35vh;
+}
+#homehero:focus-within {
+  z-index: 12000;
+  background: transparent !important;
+}
+#homehero:focus-within #homesearch {
+  top: 2vh;
+  background: #fff !important;
+  border: 1px solid rgba(20,20,20,.1) !important;
+  box-shadow: 0 1vh 2vh rgba(0,0,0,.18) !important;
+}
+#homehero:focus-within #appsearch { color: #222 !important; }
+#homehero:focus-within #appsearch::placeholder { color: #999 !important; }
