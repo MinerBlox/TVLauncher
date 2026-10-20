@@ -1087,3 +1087,150 @@ body.home-search-active #appsearch::placeholder { color: #999 !important; }
 body.home-query-present #homesearch { background:#fff !important; border:1px solid rgba(20,20,20,.08) !important; box-shadow:0 1.2vh 2.2vh rgba(0,0,0,.14) !important; }
 body.home-query-present #homesearch svg { visibility:visible !important; }
 body.home-query-present #appsearch { color:#323438 !important; }
+
+/* The focus crop contains a light photographic rim; cover it with the sampled tile colors. */
+#featurecards .featuretile:hover,
+#featurecards .featuretile.dfocus {
+  box-shadow: 0 0 0 .32vh rgba(var(--glow-top),.96),
+              0 0 2.4vh rgba(var(--glow-top),.88),
+              0 1.3vh 3vh rgba(var(--glow-bottom),.76) !important;
+}
+#featurecards .featuretile:hover::after,
+#featurecards .featuretile.dfocus::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 .3vh rgba(var(--glow-top),.96),
+              inset 0 -.28vh .4vh rgba(var(--glow-bottom),.9);
+}
+
+/* Larger, darker dots sweep across the original pattern once every eight seconds. */
+#homehero::before {
+  background-image: radial-gradient(circle, rgba(90,118,154,.78) 0 2.8px,
+                                    rgba(90,118,154,.32) 3.3px, transparent 5px);
+  -webkit-mask-size: 46vw 100%;
+  mask-size: 46vw 100%;
+  animation: home-dot-wave-strong 8s ease-in-out infinite;
+}
+@keyframes home-dot-wave-strong {
+  0%, 47% { opacity: 0; -webkit-mask-position: -48vw 0; mask-position: -48vw 0; }
+  51% { opacity: 1; }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; -webkit-mask-position: 105vw 0; mask-position: 105vw 0; }
+}
+
+/* Every keyboard button occupies exactly one of ten equal columns. */
+#homekeyboard { top: 52vh; width: min(62vw, 1120px); padding: 1.6vh 1.65vw 1.3vh; }
+.homekeyboard-keys { gap: .65vh; }
+.homekeyboard-row { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: .5vw; }
+.homekeyboard-key,
+.homekeyboard-actions .homekeyboard-space,
+.homekeyboard-actions .homekeyboard-submit {
+  width: 100%;
+  min-width: 0;
+  height: 4.8vh;
+  flex: none !important;
+  border-radius: .68vw;
+  font-size: 1.25vw;
+}
+.homekeyboard-submit { background: linear-gradient(135deg,#339dff,#056de1); color:#fff; border-color:#1477e9; }
+.homekeyboard-key.homekeyboard-shift,
+.homekeyboard-key.homekeyboard-delete,
+.homekeyboard-key.homekeyboard-space,
+.homekeyboard-key.homekeyboard-clear,
+.homekeyboard-key.homekeyboard-close { background:#e5eaf1; }
+#homekeyboard.capitals .homekeyboard-shift { background:#cce2ff; color:#0754ad; box-shadow:inset 0 0 0 .15vw #58a6ff; }
+.homekeyboard-header { margin-bottom: 1.1vh; }
+.homekeyboard-hint { margin-top: 1vh; }
+
+/* Full-screen second shelf, reached with Down from the home row. */
+#servicegrid {
+  position: fixed; inset: 0; z-index: 19000; box-sizing:border-box;
+  overflow: hidden; visibility:hidden; opacity:0; pointer-events:none;
+  transform: translateY(3vh);
+  transition: opacity .3s ease, transform .38s cubic-bezier(.2,.8,.2,1), visibility .3s;
+  background: radial-gradient(circle at 50% -30%,#fff 15%,transparent 75%),
+              linear-gradient(145deg,#f8fafc,#eaf0f6);
+  color:#1c2530; font-family:Arial,Helvetica,sans-serif;
+}
+#servicegrid::before {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image: radial-gradient(circle,#ccd5df 0 1.5px,transparent 2px);
+  background-size:2.7vw 4.8vh; opacity:.28;
+}
+#servicegrid.open { visibility:visible; opacity:1; pointer-events:auto; transform:translateY(0); }
+.servicegrid-inner { position:relative; z-index:1; width:82vw; max-width:1580px; height:100%; margin:auto; display:flex; flex-direction:column; }
+.servicegrid-header { flex:0 0 17vh; display:flex; align-items:center; justify-content:space-between; }
+.servicegrid-eyebrow { font-size:.92vw; font-weight:700; color:#8d99a8; letter-spacing:.21em; }
+.servicegrid-header h2 { margin:.55vh 0 .25vh; font-size:3vw; letter-spacing:-.055em; font-weight:650; }
+.servicegrid-header p { margin:0; color:#8995a3; font-size:1.1vw; }
+.servicegrid-back {
+  display:flex; align-items:center; gap:.65vw; border:1px solid rgba(152,169,190,.26);
+  border-radius:999px; background:rgba(255,255,255,.78); box-shadow:0 .4vh 1.2vh rgba(34,49,66,.07);
+  padding:1vh 1.3vw; color:#586677; font:600 1vw Arial,Helvetica,sans-serif; cursor:pointer;
+}
+.servicegrid-back:first-letter { font-size:1.5vw; }
+.servicegrid-back:hover { background:#fff; box-shadow:0 .5vh 1.5vh rgba(34,49,66,.14); }
+.servicegrid-list {
+  flex:1; min-height:0; display:grid; grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-rows:repeat(4,minmax(0,1fr)); column-gap:1.35vw; row-gap:1.4vh;
+  padding:0 0 1vh;
+}
+.service-card {
+  min-width:0; min-height:0; display:flex; flex-direction:column; align-items:stretch;
+  gap:.65vh; padding:0; background:transparent; border:0; color:#384553; text-align:center;
+  font:500 1vw Arial,Helvetica,sans-serif; cursor:pointer;
+}
+.service-artwork {
+  position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
+  overflow:hidden; border-radius:1.8vh; background:var(--card-bg,#1c2633); color:var(--mark,#fff);
+  box-shadow:0 .5vh 1.15vh rgba(35,47,67,.15), inset 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease;
+}
+.service-artwork::after { content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); pointer-events:none; }
+.service-mark { max-width:95%; padding:0 .5vw; font-size:1.55vw; font-weight:800; letter-spacing:-.055em; white-space:nowrap; line-height:1; }
+.service-label { flex:0 0 1.8vh; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:.95vw; }
+.service-card:hover .service-artwork, .service-card.dfocus .service-artwork {
+  transform:scale(1.075);
+  box-shadow:0 0 0 .22vh rgba(255,255,255,.96),0 0 2.4vh var(--card-glow,rgba(63,119,206,.35)),0 1.3vh 2.5vh rgba(30,45,62,.22);
+}
+.service-card.dfocus { outline:none; }
+.service-card.installed .service-artwork::before {
+  content:""; position:absolute; right:.8vw; top:1.2vh; width:.42vw; height:.42vw;
+  border-radius:50%; background:#40e99a; box-shadow:0 0 .65vw #40e99a;
+}
+.service-card[data-brand="netflix"] { --card-bg:linear-gradient(145deg,#202126,#070809); --mark:#e50914; --card-glow:rgba(229,9,20,.4); }
+.service-card[data-brand="disney"] { --card-bg:linear-gradient(140deg,#143b82,#07174a); --card-glow:rgba(35,95,216,.5); }
+.service-card[data-brand="prime"] { --card-bg:linear-gradient(140deg,#35a8ec,#0765ac); --card-glow:rgba(0,150,235,.45); }
+.service-card[data-brand="youtube"] { --card-bg:#fff; --mark:#e62117; --card-glow:rgba(230,33,23,.25); }
+.service-card[data-brand="iplayer"] { --card-bg:linear-gradient(135deg,#272044,#0b0d18); --card-glow:rgba(157,84,248,.36); }
+.service-card[data-brand="itvx"] { --card-bg:linear-gradient(135deg,#17afda,#5629b9 55%,#f14989); --card-glow:rgba(180,70,210,.4); }
+.service-card[data-brand="channel4"] { --card-bg:linear-gradient(135deg,#15191e,#3a414b); --card-glow:rgba(48,63,82,.42); }
+.service-card[data-brand="hulu"] { --card-bg:#131d1a; --mark:#1ce783; --card-glow:rgba(28,231,131,.43); }
+.service-card[data-brand="paramount"] { --card-bg:linear-gradient(140deg,#2584eb,#053d9e); --card-glow:rgba(30,122,231,.44); }
+.service-card[data-brand="now"] { --card-bg:linear-gradient(130deg,#5627ad,#121025); --card-glow:rgba(125,81,223,.44); }
+.service-card[data-brand="plex"] { --card-bg:#17191a; --mark:#e5a00d; --card-glow:rgba(229,160,13,.38); }
+.service-card[data-brand="spotify"] { --card-bg:#17211b; --mark:#1ed760; --card-glow:rgba(30,215,96,.39); }
+.service-card[data-brand="twitch"] { --card-bg:#6441a5; --card-glow:rgba(100,65,165,.45); }
+.service-card[data-brand="pluto"] { --card-bg:linear-gradient(130deg,#141319,#3c235b); --card-glow:rgba(108,53,166,.42); }
+.service-card[data-brand="crunchyroll"] { --card-bg:linear-gradient(135deg,#fb8d2e,#f05a22); --card-glow:rgba(245,114,32,.46); }
+.service-card[data-brand="rakuten"] { --card-bg:linear-gradient(135deg,#222b56,#10246f); --card-glow:rgba(63,83,190,.42); }
+.service-card[data-brand="discovery"] { --card-bg:linear-gradient(145deg,#1d2738,#084c84); --card-glow:rgba(21,116,191,.43); }
+.service-card[data-brand="dazn"] { --card-bg:#15191c; --card-glow:rgba(26,35,41,.42); }
+.service-card[data-brand="mubi"] { --card-bg:#17191d; --card-glow:rgba(70,80,90,.4); }
+.service-card[data-brand="hayu"] { --card-bg:linear-gradient(135deg,#ed3b79,#c4164f); --card-glow:rgba(237,59,121,.42); }
+.service-card[data-brand="crunchyroll"] .service-mark, .service-card[data-brand="paramount"] .service-mark { font-size:1.28vw; }
+.servicegrid-footer { flex:0 0 5vh; display:flex; justify-content:space-between; align-items:center; color:#9ca8b5; font-size:.9vw; }
+.servicegrid-toast {
+  position:absolute; left:50%; bottom:4vh; z-index:2; transform:translate(-50%,1vh);
+  padding:1.2vh 1.6vw; border-radius:999px; background:#1f2935; color:#fff;
+  box-shadow:0 1vh 2vh rgba(15,22,31,.2); font-size:1vw;
+  opacity:0; pointer-events:none; transition:opacity .2s,transform .2s;
+}
+.servicegrid-toast.visible { opacity:1; transform:translate(-50%,0); }
+@media (prefers-reduced-motion: reduce) {
+  #homehero::before { animation:none; }
+  #servicegrid, .service-artwork { transition:none; }
+}
