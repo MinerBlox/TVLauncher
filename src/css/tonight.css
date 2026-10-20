@@ -1,0 +1,40 @@
+/* Tonight TV: reversible visual layer over OpenLauncher.
+   Existing launcher, installed-app discovery, folders and Luna app launching are untouched. */
+:root { --tonight-dot: rgba(116,126,142,.21); --tonight-ink: #16171a; }
+html, body, #prefetchmaindiv, #maindiv { background: transparent !important; color: var(--tonight-ink); }
+body:before {
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(circle, var(--tonight-dot) 1.45px, transparent 1.7px) 0 0 / 44px 44px,
+    radial-gradient(ellipse at 50% 20%, #ffffff 7%, #f8f9fb 58%, #e8edf5 100%);
+}
+#bgvideo { display:none !important; }
+#clock, #datelayer, #weatherlayer, #infobtn, #recentrow { display:none !important; }
+#tonight-hero { position:absolute; z-index:4; top:32%; left:50%; transform:translate(-50%,-50%); width:min(70vw,1080px); text-align:center; transition:opacity .25s; }
+#tonight-hero h1 { font-family:Arial,Helvetica,sans-serif; font-size:clamp(24px,2.85vw,52px); font-weight:500; line-height:1.15; margin:0 0 2.2vh; color:#111; letter-spacing:-.045em; }
+#tonight-search { display:flex; align-items:center; gap:1.7vw; box-sizing:border-box; padding:0 2.1vw; width:100%; height:7.8vh; min-height:60px; background:linear-gradient(170deg, #fff, #f9fafc); border:1px solid rgba(156,165,178,.16); border-radius:60px; box-shadow:0 14px 27px rgba(32,45,69,.14), inset 0 1px 2px #fff; }
+#tonight-search svg { width:clamp(21px,2.2vw,37px); height:auto; color:#7d8389; flex:none; }
+#tonight-query { min-width:0; width:100%; border:0; outline:none; background:transparent; font-size:clamp(17px,1.6vw,30px); font-family:Arial,Helvetica,sans-serif; color:#181818; }
+#tonight-query::placeholder { color:#92969d; opacity:1; }
+#tonight-search:focus-within, #tonight-search.dfocus { box-shadow:0 0 0 3px #fff,0 0 0 7px #7eafff,0 12px 32px rgba(41,94,189,.2); }
+#tonight-status { margin:1.2vh 0 0; color:#565e6b; font:1.35vw Arial,sans-serif; min-height:1.5em; }
+#tonight-chevron { position:absolute; top:6%; left:50%; transform:translateX(-50%) rotate(45deg); width:22px; height:22px; border-left:5px solid #a0a0a0; border-top:5px solid #a0a0a0; border-radius:2px; z-index:2; opacity:.8; }
+#appbar { box-sizing:border-box; bottom:3.6vh; height:24vh !important; left:7vw; width:86vw; border-radius:38px; background:rgba(252,253,255,.65); border:1px solid rgba(255,255,255,.85); box-shadow:0 10px 35px rgba(75,88,112,.14); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); padding:1.4vh 1vw; display:flex !important; justify-content:center; align-items:center; gap:1vw; overflow:visible; }
+#appbar label, #appbar > .appitem { flex:1 1 0; min-width:0; max-width:18%; }
+#appbar .appitem { padding:0 !important; width:100%; }
+#appbar .appicon { height:18vh; object-fit:contain; }
+#appbar .appname { display:none; }
+#appbar .appitem:last-child .appicon { border-radius:18px; }
+.appitem { border-radius:1.6vw !important; transition:transform .18s ease,filter .18s ease,box-shadow .18s ease !important; overflow:visible; }
+.appitem .appicon { border-radius:1.4vw; box-shadow:0 6px 14px rgba(28,36,55,.15); }
+.appitem:hover,.appitem.dfocus { transform:scale(1.085); background:transparent !important; z-index:101 !important; filter:drop-shadow(0 10px 14px var(--tile-glow,rgba(73,149,255,.44))); outline:3px solid rgba(255,255,255,.95) !important; outline-offset:4px !important; }
+.appitem:hover .appicon,.appitem.dfocus .appicon { box-shadow:0 0 26px 4px var(--tile-glow,rgba(73,149,255,.44)),0 9px 20px rgba(10,20,45,.18); }
+#realappbarbtu:checked ~ #tonight-hero, #realappbarbtu:checked ~ #tonight-chevron { opacity:0; visibility:hidden; pointer-events:none; }
+#realappbarbtu:checked ~ #appluncher { background:transparent !important; top:10vh !important; left:5vw; width:90vw; height:calc(89vh - var(--barh)) !important; padding:1.5vh 1vw; box-sizing:border-box; border-radius:30px; overflow-y:auto !important; grid-template-columns:repeat(auto-fit,minmax(10vw,1fr)); align-content:start; gap:1vw .8vw; }
+#appluncher .appitem { padding:.55vw; }
+#appluncher .appname { color:#23252b !important; text-shadow:none !important; font-family:Arial,sans-serif; }
+#folderbar { background:rgba(255,255,255,.85) !important; color:#1f2630 !important; border-radius:18px; }
+#realappbarbtu:checked ~ #appbar { background:rgba(255,255,255,.65); }
+#drawertools { right:3vw; bottom:26vh; }
+#editbtn,#settingsbtn { color:#171b23 !important; background:rgba(255,255,255,.9) !important; border:1px solid #ccd1db !important; }
+@media(max-width:700px){#tonight-hero{width:82vw}#appbar{left:3vw;width:94vw;border-radius:22px}#tonight-search{min-height:44px}#tonight-chevron{top:4%}}
