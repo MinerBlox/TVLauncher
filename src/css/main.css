@@ -1240,3 +1240,167 @@ body.home-query-present #appsearch { color:#323438 !important; }
 .service-artwork.vector-wordmark svg { width:7.4vw; height:5vh; }
 .service-card[data-brand="netflix"] .service-mark { font-size:1.35vw; letter-spacing:.04em; }
 .service-card[data-brand="youtube"] .service-mark { font-size:1.4vw; letter-spacing:-.05em; }
+
+/* Focus: no stroke, inset border, or outline; only enlargement and a soft sampled glow. */
+#featurecards .featuretile:hover,
+#featurecards .featuretile.dfocus {
+  border: 0 !important;
+  outline: 0 !important;
+  outline-offset: 0 !important;
+  background-size: 105vw 105vh !important;
+  background-position: var(--focus-crop-x) -75.511vh !important;
+  transform: scale(1.06) !important;
+  box-shadow: 0 0 2.4vh rgba(var(--glow-top),.72),
+              0 1.35vh 3.1vh rgba(var(--glow-bottom),.62) !important;
+}
+#featurecards .featuretile:hover::after,
+#featurecards .featuretile.dfocus::after { content: none !important; }
+#featurecards .featuretile:nth-child(1) { --focus-crop-x:-10.227vw; }
+#featurecards .featuretile:nth-child(2) { --focus-crop-x:-28.815vw; }
+#featurecards .featuretile:nth-child(3) { --focus-crop-x:-45.462vw; }
+#featurecards .featuretile:nth-child(4) { --focus-crop-x:-62.168vw; }
+#featurecards .featuretile:nth-child(5) { --focus-crop-x:-79.035vw; }
+
+/* The existing photograph contains the real dots. A transparent canvas grows those exact dots. */
+#homehero::before { content: none !important; animation: none !important; }
+#home-dot-pulse {
+  position:absolute; inset:0; z-index:0; width:100%; height:100%;
+  pointer-events:none; display:block;
+}
+#homehero #drawerhandle, #homehero #homesearch { z-index:2; }
+
+/* Four-row TV keyboard: numbers, two rows of thirteen letters, then actions. */
+#homekeyboard { top:52vh; width:min(78vw,1450px); padding:1.45vh 1.5vw 1.3vh; }
+#homekeyboard .homekeyboard-keys { gap:.72vh; }
+#homekeyboard .homekeyboard-row {
+  display:grid; width:100%; grid-template-columns:repeat(13,minmax(0,1fr));
+  gap:.55vw; margin:0;
+}
+#homekeyboard .homekeyboard-numbers-row {
+  width:77%; margin-left:auto; margin-right:auto;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+}
+#homekeyboard .homekeyboard-key {
+  width:100%; min-width:0; height:5.75vh; padding:0; border-radius:.72vw;
+  font-size:1.55vw; font-weight:500;
+  flex:none !important;
+}
+#homekeyboard .homekeyboard-actions-row .homekeyboard-clear { grid-column:span 2; }
+#homekeyboard .homekeyboard-actions-row .homekeyboard-shift { grid-column:span 2; }
+#homekeyboard .homekeyboard-actions-row .homekeyboard-space { grid-column:span 5; }
+#homekeyboard .homekeyboard-actions-row .homekeyboard-delete { grid-column:span 2; }
+#homekeyboard .homekeyboard-actions-row .homekeyboard-submit { grid-column:span 2; }
+#homekeyboard .homekeyboard-clear,
+#homekeyboard .homekeyboard-shift,
+#homekeyboard .homekeyboard-space,
+#homekeyboard .homekeyboard-delete {
+  background:#e4eaf1 !important; color:#354252 !important; font-size:1.05vw !important;
+}
+#homekeyboard .homekeyboard-space { background:#fff !important; }
+#homekeyboard .homekeyboard-submit {
+  background:linear-gradient(135deg,#34a9ff,#0868dc) !important;
+  border:1px solid #1677eb !important; color:#fff !important;
+}
+#homekeyboard .homekeyboard-submit svg {
+  width:2vw; height:2vw; fill:none; stroke:currentColor;
+  stroke-width:3; stroke-linecap:round; stroke-linejoin:round;
+}
+#homekeyboard.shifted .homekeyboard-shift {
+  background:#cce2ff !important; color:#0754ad !important;
+  box-shadow:inset 0 0 0 .12vw #76b3ff;
+}
+#homekeyboard.capslocked .homekeyboard-shift {
+  background:#197af0 !important; color:#fff !important;
+  box-shadow:0 0 1vw rgba(25,122,240,.35);
+}
+#homekeyboard .homekeyboard-hint { margin-top:1vh; }
+
+/* Calm, lightly blurred dot field behind the streaming shelf. */
+#servicegrid {
+  background:radial-gradient(circle at 50% -20%,#fff 6%,#f7f9fc 63%,#f1f5f9 100%) !important;
+}
+#servicegrid::before {
+  z-index:0; opacity:.62; filter:blur(1.25px);
+  background-image:radial-gradient(circle,rgba(166,178,194,.55) 0 2px,transparent 2.5px);
+  background-size:2.717vw 4.82vh;
+  background-position:1.09vw .73vh;
+}
+#servicegrid .servicegrid-back {
+  position:absolute; z-index:3; top:5.6vh; left:50%; width:3.5vw; height:3.4vh;
+  transform:translateX(-50%); padding:0; border:0; border-radius:0;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; box-shadow:none; cursor:pointer;
+}
+#servicegrid .servicegrid-back svg { width:2.35vw; height:1.4vw; fill:none; stroke:#97999b; stroke-width:3.2; stroke-linecap:square; }
+#servicegrid .servicegrid-back:hover svg { stroke:#444b54; }
+#servicegrid .servicegrid-list { position:relative; z-index:1; display:block; width:100%; height:100%; padding:0; }
+#servicegrid .service-card {
+  position:absolute; top:calc(14.2vh + var(--row-offset)); height:16.6vh;
+  display:block; padding:0; margin:0; border:0; outline:0; background:transparent;
+  cursor:pointer; transform:none;
+}
+#servicegrid .service-card:nth-child(5n + 1) { left:9.33vw; width:16.39vw; --focus-crop-x:-10.227vw; }
+#servicegrid .service-card:nth-child(5n + 2) { left:27.09vw; width:14.11vw; --focus-crop-x:-28.815vw; }
+#servicegrid .service-card:nth-child(5n + 3) { left:42.94vw; width:14.29vw; --focus-crop-x:-45.462vw; }
+#servicegrid .service-card:nth-child(5n + 4) { left:58.85vw; width:14.29vw; --focus-crop-x:-62.168vw; }
+#servicegrid .service-card:nth-child(5n + 5) { left:74.88vw; width:15.67vw; --focus-crop-x:-79.035vw; }
+#servicegrid .service-artwork {
+  width:100%; height:100%; box-sizing:border-box; border:0; border-radius:2.5vh;
+  overflow:hidden; display:flex; align-items:center; justify-content:center;
+  background:var(--card-bg,#1b2532); color:var(--mark,#fff);
+  box-shadow:0 .7vh 1.5vh rgba(25,36,51,.17);
+  transform-origin:center; transition:transform .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s ease;
+}
+#servicegrid .service-artwork::before,
+#servicegrid .service-artwork::after { content:none !important; }
+#servicegrid .service-card:hover .service-artwork,
+#servicegrid .service-card.dfocus .service-artwork {
+  transform:scale(1.06);
+  box-shadow:0 0 2.5vh var(--card-glow,rgba(60,92,146,.55)),
+             0 1.25vh 2.7vh var(--card-glow,rgba(60,92,146,.44));
+}
+#servicegrid .service-card:focus,
+#servicegrid .service-card.dfocus { outline:0 !important; }
+#servicegrid .service-artwork svg {
+  width:7.4vw; height:9.8vh; max-height:none; fill:currentColor; flex:none;
+  filter:drop-shadow(0 .2vh .35vh rgba(0,0,0,.15));
+}
+#servicegrid .service-artwork .service-logo {
+  display:block; width:80%; height:72%; object-fit:contain; pointer-events:none;
+  filter:drop-shadow(0 .25vh .45vh rgba(0,0,0,.13));
+}
+#servicegrid .home-card .service-artwork {
+  background-image:url("../access/home-reference.png") !important;
+  background-size:100vw 100vh !important;
+  background-position:var(--crop-x) -71.5vh !important;
+  background-repeat:no-repeat !important;
+}
+#servicegrid .home-card:hover .service-artwork,
+#servicegrid .home-card.dfocus .service-artwork {
+  background-size:105vw 105vh !important;
+  background-position:var(--focus-crop-x) -75.511vh !important;
+}
+#servicegrid .home-card:nth-child(1) { --crop-x:-9.33vw; --card-glow:rgba(24,24,24,.64); }
+#servicegrid .home-card:nth-child(2) { --crop-x:-27.09vw; --card-glow:rgba(251,29,73,.68); }
+#servicegrid .home-card:nth-child(3) { --crop-x:-42.94vw; --card-glow:rgba(25,28,30,.66); }
+#servicegrid .home-card:nth-child(4) { --crop-x:-58.85vw; --card-glow:rgba(252,33,53,.65); }
+#servicegrid .home-card:nth-child(5) { --crop-x:-74.88vw; --card-glow:rgba(0,80,226,.66); }
+#servicegrid .service-card[data-brand="prime"] { --card-bg:linear-gradient(145deg,#0b3156,#07172a); --card-glow:rgba(10,107,193,.55); }
+#servicegrid .service-card[data-brand="iplayer"] { --card-bg:linear-gradient(145deg,#211525,#0c0b13); --card-glow:rgba(219,39,117,.54); }
+#servicegrid .service-card[data-brand="hulu"] { --card-bg:#101a15; --card-glow:rgba(28,231,131,.52); }
+#servicegrid .service-card[data-brand="disney"] { --card-bg:linear-gradient(145deg,#123e68,#06213d); --card-glow:rgba(22,99,145,.58); }
+#servicegrid .service-card[data-brand="youtube"] { --card-bg:#fff; --mark:#f20f20; --card-glow:rgba(220,39,48,.48); }
+#servicegrid .service-card[data-brand="netflix"] { --card-glow:rgba(229,9,20,.55); }
+#servicegrid .service-card[data-brand="itvx"] { --card-glow:rgba(164,67,211,.58); }
+#servicegrid .service-card[data-brand="channel4"] { --card-glow:rgba(44,53,67,.58); }
+#servicegrid .service-card[data-brand="paramount"] { --card-glow:rgba(30,122,231,.58); }
+#servicegrid .service-card[data-brand="now"] { --card-glow:rgba(125,81,223,.58); }
+#servicegrid .service-card[data-brand="plex"] { --card-glow:rgba(229,160,13,.52); }
+#servicegrid .service-card[data-brand="spotify"] { --card-glow:rgba(30,215,96,.5); }
+#servicegrid .service-card[data-brand="twitch"] { --card-glow:rgba(100,65,165,.58); }
+#servicegrid .service-card[data-brand="crunchyroll"] { --card-glow:rgba(245,114,32,.58); }
+#servicegrid .service-card[data-brand="dazn"] { --card-glow:rgba(20,25,28,.62); }
+#servicegrid .servicegrid-toast { z-index:4; bottom:3vh; }
+@media (prefers-reduced-motion:reduce) {
+  #servicegrid .service-artwork, #servicegrid { transition:none !important; }
+}
