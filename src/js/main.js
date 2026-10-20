@@ -109,7 +109,7 @@ function tonightBrandForApp(eachapp){
 }
 function appiconsrc(eachapp){
  const brand=tonightBrandForApp(eachapp);
- if(brand) return 'access/brands/'+brand+'.jpg';
+ if(brand) return 'access/brands/'+brand+'.svg';
  if(eachapp._demo) return tonightDemoIcon(eachapp);
 	if(turstedapp){
 		return eachapp.folderPath+'/'+eachapp.icon;
