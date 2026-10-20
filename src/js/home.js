@@ -12,30 +12,39 @@
   document.body.appendChild(panel);
   const keyArea = panel.querySelector(".homekeyboard-keys");
   const layouts = [
-    [["Q","Q"],["W","W"],["E","E"],["R","R"],["T","T"],["Y","Y"],["U","U"],["I","I"],["O","O"],["P","P"]],
-    [["A","A"],["S","S"],["D","D"],["F","F"],["G","G"],["H","H"],["J","J"],["K","K"],["L","L"],["?","?"]],
-    [["shift","⇧"],["Z","Z"],["X","X"],["C","C"],["V","V"],["B","B"],["N","N"],["M","M"],[".","."] ,["delete","⌫"]],
-    [["1","1"],["2","2"],["3","3"],["4","4"],["5","5"],["6","6"],["7","7"],["8","8"],["9","9"],["0","0"]],
-    [["!","!"],[":",":"],[";",";"],["-","-"],["'","'"],[",",","],["space","Space"],["clear","Clear"],["submit","Search"],["close","×"]]
+    { name: "numbers", keys: Array.from("1234567890").map(function (key) { return [key,key]; }) },
+    { name: "letters", keys: Array.from("QWERTYUIOPASD").map(function (key) { return [key,key]; }) },
+    { name: "letters", keys: Array.from("FGHJKLZXCVBNM").map(function (key) { return [key,key]; }) },
+    { name: "actions", keys: [["clear","Clear"],["shift","⇧"],["space","Space"],["delete","⌫"],["submit",""]] }
   ];
-  layouts.forEach(function (keys) {
+  layouts.forEach(function (layout) {
     const row = document.createElement("div");
-    row.className = "homekeyboard-row";
-    keys.forEach(function (entry) {
+    row.className = "homekeyboard-row homekeyboard-" + layout.name + "-row";
+    layout.keys.forEach(function (entry) {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "homekeyboard-key homekeyboard-" + (entry[0].length > 1 ? entry[0] : "character");
+      button.className = "homekeyboard-key homekeyboard-" + (/^[A-Z]$/.test(entry[0]) ? "letter" : entry[0]);
       button.dataset.key = entry[0];
-      button.textContent = entry[1];
+      if (entry[0] === "submit") {
+        button.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 16h21m-8-8 8 8-8 8"/></svg>';
+      } else button.textContent = entry[1];
       button.setAttribute("aria-label", {
-        shift: "Toggle capitals", delete: "Delete last character",
-        space: "Space", clear: "Clear search", submit: "Search", close: "Close keyboard"
+        shift: "Shift. Press twice for caps lock", delete: "Delete last character",
+        space: "Space", clear: "Clear search", submit: "Search"
       }[entry[0]] || entry[1]);
       row.appendChild(button);
     });
     keyArea.appendChild(row);
   });
-  let capitals = false;
+  let shiftMode = 0; // 0 normal, 1 next letter, 2 caps lock
+  let lastShiftPress = 0;
+  const shiftButton = panel.querySelector('[data-key="shift"]');
+  function updateShift() {
+    panel.classList.toggle("shifted", shiftMode === 1);
+    panel.classList.toggle("capslocked", shiftMode === 2);
+    shiftButton.setAttribute("aria-pressed", shiftMode !== 0 ? "true" : "false");
+    shiftButton.setAttribute("aria-label", shiftMode === 2 ? "Caps lock on. Press to turn off" : "Shift. Press twice for caps lock");
+  }
   let previousFocus = null;
   search.readOnly = true; // Keep the TV's native keyboard from covering the custom one.
 
@@ -62,12 +71,14 @@
     panel.setAttribute("aria-hidden", "false");
     document.body.classList.add("home-search-active");
     if (typeof keyboardmode !== "undefined") keyboardmode = true;
-    if (typeof setfocus === "function") setfocus(panel.querySelector(".homekeyboard-key"));
+    if (typeof setfocus === "function") setfocus(panel.querySelector(".homekeyboard-letter"));
   };
   window.closeHomeKeyboard = function (restore) {
     if (!homeKeyboardIsOpen()) return;
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
+    shiftMode = 0;
+    updateShift();
     document.body.classList.remove("home-search-active");
     search.blur();
     if (restore !== false && typeof setfocus === "function") {
@@ -78,13 +89,20 @@
     if (key === "close") { closeHomeKeyboard(); return; }
     if (key === "submit") { openDrawer(); return; }
     if (key === "shift") {
-      capitals = !capitals;
-      panel.classList.toggle("capitals", capitals);
+      const now = Date.now();
+      shiftMode = shiftMode === 2 ? 0 : shiftMode === 1 ? (now - lastShiftPress < 900 ? 2 : 0) : 1;
+      lastShiftPress = now;
+      updateShift();
       return;
     }
     if (key === "delete") search.value = search.value.slice(0, -1);
     else if (key === "clear") search.value = "";
-    else search.value += key === "space" ? " " : (/^[a-z]$/i.test(key) ? (capitals ? key.toUpperCase() : key.toLowerCase()) : key);
+    else if (key === "space") search.value += " ";
+    else {
+      const letter = /^[a-z]$/i.test(key);
+      search.value += letter && shiftMode ? key.toUpperCase() : (letter ? key.toLowerCase() : key);
+      if (letter && shiftMode === 1) { shiftMode = 0; updateShift(); }
+    }
     search.dispatchEvent(new Event("input", { bubbles: true }));
   }
   search.addEventListener("input", function () { document.body.classList.toggle("home-query-present", !!search.value); });
@@ -110,7 +128,7 @@
     } else if (event.key === "Backspace") {
       event.preventDefault();
       pressKey("delete");
-    } else if (event.key === " " || (event.key.length === 1 && /^[a-z0-9]$/i.test(event.key))) {
+    } else if (event.key === " " || (event.key.length === 1 && /^[a-z0-9?!.,\x27-]$/i.test(event.key))) {
       event.preventDefault();
       pressKey(event.key === " " ? "space" : event.key);
     }
