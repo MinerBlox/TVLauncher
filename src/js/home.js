@@ -11,33 +11,31 @@
   panel.innerHTML = '<div class="homekeyboard-header"><div><span class="homekeyboard-eyebrow">SEARCH</span><h2>What are you looking for?</h2></div><button type="button" class="homekeyboard-close" data-key="close" aria-label="Close keyboard">×</button></div><div class="homekeyboard-keys"></div><div class="homekeyboard-hint">Use the arrow keys to navigate · OK to select · Back to close</div>';
   document.body.appendChild(panel);
   const keyArea = panel.querySelector(".homekeyboard-keys");
-  const rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
-  rows.forEach(function (letters) {
+  const layouts = [
+    [["Q","Q"],["W","W"],["E","E"],["R","R"],["T","T"],["Y","Y"],["U","U"],["I","I"],["O","O"],["P","P"]],
+    [["A","A"],["S","S"],["D","D"],["F","F"],["G","G"],["H","H"],["J","J"],["K","K"],["L","L"],["?","?"]],
+    [["shift","⇧"],["Z","Z"],["X","X"],["C","C"],["V","V"],["B","B"],["N","N"],["M","M"],[".","."] ,["delete","⌫"]],
+    [["1","1"],["2","2"],["3","3"],["4","4"],["5","5"],["6","6"],["7","7"],["8","8"],["9","9"],["0","0"]],
+    [["!","!"],[":",":"],[";",";"],["-","-"],["'","'"],[",",","],["space","Space"],["clear","Clear"],["submit","Search"],["close","×"]]
+  ];
+  layouts.forEach(function (keys) {
     const row = document.createElement("div");
     row.className = "homekeyboard-row";
-    Array.from(letters).forEach(function (letter) {
+    keys.forEach(function (entry) {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "homekeyboard-key";
-      button.dataset.key = letter;
-      button.textContent = letter;
-      button.setAttribute("aria-label", letter);
+      button.className = "homekeyboard-key homekeyboard-" + (entry[0].length > 1 ? entry[0] : "character");
+      button.dataset.key = entry[0];
+      button.textContent = entry[1];
+      button.setAttribute("aria-label", {
+        shift: "Toggle capitals", delete: "Delete last character",
+        space: "Space", clear: "Clear search", submit: "Search", close: "Close keyboard"
+      }[entry[0]] || entry[1]);
       row.appendChild(button);
     });
     keyArea.appendChild(row);
   });
-  const actions = document.createElement("div");
-  actions.className = "homekeyboard-row homekeyboard-actions";
-  [["space", "Space"], ["delete", "⌫"], ["clear", "Clear"], ["submit", "Search ↗"]].forEach(function (entry) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "homekeyboard-key homekeyboard-action homekeyboard-" + entry[0];
-    button.dataset.key = entry[0];
-    button.textContent = entry[1];
-    button.setAttribute("aria-label", entry[0] === "delete" ? "Delete last letter" : entry[1]);
-    actions.appendChild(button);
-  });
-  keyArea.appendChild(actions);
+  let capitals = false;
   let previousFocus = null;
   search.readOnly = true; // Keep the TV's native keyboard from covering the custom one.
 
@@ -79,9 +77,14 @@
   function pressKey(key) {
     if (key === "close") { closeHomeKeyboard(); return; }
     if (key === "submit") { openDrawer(); return; }
+    if (key === "shift") {
+      capitals = !capitals;
+      panel.classList.toggle("capitals", capitals);
+      return;
+    }
     if (key === "delete") search.value = search.value.slice(0, -1);
     else if (key === "clear") search.value = "";
-    else search.value += key === "space" ? " " : key.toLowerCase();
+    else search.value += key === "space" ? " " : (/^[a-z]$/i.test(key) ? (capitals ? key.toUpperCase() : key.toLowerCase()) : key);
     search.dispatchEvent(new Event("input", { bubbles: true }));
   }
   search.addEventListener("input", function () { document.body.classList.toggle("home-query-present", !!search.value); });
