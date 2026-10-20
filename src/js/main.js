@@ -16,6 +16,35 @@ let droptimer=null;
 	  let turstedapp=false,rooted=false;
 let appid='com.homebrew.openlauncher'
 let appdir='/media/developer/apps/usr/palm/applications/'+appid;
+/* Explicitly non-functional demo data for simulator / unprivileged installations.
+   It keeps the launcher visible but does not claim streaming apps are installed. */
+let tonightDemoMode=false;
+const TONIGHT_DEMO=[
+ {id:'demo.netflix',title:'Netflix',bg:'#171717',fg:'#e50914',short:'NETFLIX'},
+ {id:'demo.youtube',title:'YouTube',bg:'#ffffff',fg:'#ed1b24',short:'YouTube'},
+ {id:'demo.iplayer',title:'BBC iPlayer',bg:'#211c40',fg:'#e7bdff',short:'iPLAYER'},
+ {id:'demo.itvx',title:'ITVX',bg:'#15131b',fg:'#ffb000',short:'ITVX'},
+ {id:'demo.disney',title:'Disney+',bg:'#102b55',fg:'#ffffff',short:'Disney+'},
+ {id:'demo.prime',title:'Prime Video',bg:'#0877bc',fg:'#ffffff',short:'prime video'},
+ {id:'demo.channel4',title:'Channel 4',bg:'#161825',fg:'#ffffff',short:'Channel 4'},
+ {id:'demo.plex',title:'Plex',bg:'#202027',fg:'#f6b52d',short:'plex'},
+ {id:'demo.settings',title:'Settings',bg:'#8d949e',fg:'#ffffff',short:'Settings'}
+].map(x=>({id:x.id,title:x.title,icon:'',folderPath:'',removable:false,_demo:x}));
+function tonightDemoIcon(a){
+ const x=a._demo;
+ const logo=x.short.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220"><defs><linearGradient id="g" x2="0.2" y2="1"><stop stop-color="'+x.bg+'"/><stop offset="1" stop-color="'+x.bg+'"/></linearGradient></defs><rect width="360" height="220" rx="32" fill="url(#g)"/><text x="180" y="120" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="'+(logo.length>10?35:logo.length>7?43:60)+'" fill="'+x.fg+'">'+logo+'</text></svg>';
+ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+function tonightEnableDemo(){
+ tonightDemoMode=true;
+ applist=TONIGHT_DEMO;
+ settings.pinned=TONIGHT_DEMO.slice(0,5).map(a=>a.id);
+ var b=document.createElement('div');
+ b.id='tonight-demo-banner';b.textContent='SIMULATOR PREVIEW — sample apps; launching disabled';
+ document.body.appendChild(b);
+}
+
 
  
 // Built once per app and kept (see tilecache), so changing the order, pins or hidden apps never recreates the icons.
@@ -54,6 +83,7 @@ function watchmarquee(tile){
 
 // where an app's icon comes from (also used by the miniature icons on folder tiles)
 function appiconsrc(eachapp){
+ if(eachapp._demo) return tonightDemoIcon(eachapp);
 	if(turstedapp){
 		return eachapp.folderPath+'/'+eachapp.icon;
 	} else if(rooted) {
@@ -165,6 +195,7 @@ function maketile (eachapp,inbar,recent) {
 	}
 
 function launchapp(id){
+ if(tonightDemoMode){ toasty("Preview only — apps cannot launch in simulator mode."); return; }
 	if(rooted){
 		lunacallasroot('luna://com.webos.service.applicationManager/launch',{"id":id});
 	} else {
@@ -436,18 +467,18 @@ await iconhack(appdir);
 var applistraw=await lunacallasroot('luna://com.webos.applicationManager/listApps',{});
 applist=applistraw.apps;
 	} else {
-		await toasty("This app required app related permission or root.This app is closing due to insufficient permission...");
-		window.webOSSystem.close();
+		tonightEnableDemo();
 	}
 }else {
-applist=permtest.apps;
+applist=permtest.apps || [];
+if(applist.length===0){ tonightEnableDemo(); }
 }
 
 applist.some((eachapp) => {if (eachapp.id === appid) {
 	appdir=eachapp.folderPath;
 	turstedapp=(eachapp.trustLevel==="trusted");
 }});
-if (!(turstedapp || rooted )) {
+if (!(turstedapp || rooted || tonightDemoMode)) {
 		await toasty("This app required trusted trustLevel or root.Thing will break without either of those. ");
 	
 }
@@ -567,6 +598,7 @@ async function uninstallapp(id){
 }
 
 async function reload() {
+ if(tonightDemoMode) return;
 
 	let newapplist, newapplistraw;
 	if (noappperm){
@@ -590,7 +622,7 @@ render();
 }
 async function inithomescreen() {
 await initpermcheck();
-loadsettings();
+if(!tonightDemoMode) loadsettings();
 syncsystemfolders();
 loadrecent();
 editbtn.addEventListener("click",toggleedit);
