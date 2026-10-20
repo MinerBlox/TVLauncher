@@ -92,7 +92,24 @@ function watchmarquee(tile){
 }
 
 // where an app's icon comes from (also used by the miniature icons on folder tiles)
+function tonightBrandForApp(eachapp){
+ const title=String(eachapp.title||eachapp.appName||'').toLowerCase();
+ const id=String(eachapp.id||'').toLowerCase();
+ if(eachapp._demo){
+   return { 'demo.netflix':'netflix','demo.disney':'disney','demo.iplayer':'iplayer',
+   'demo.youtube':'youtube','demo.itvx':'itvx','demo.appletv':'appletv' }[id] || null;
+ }
+ if(title.includes('netflix') || id.includes('netflix')) return 'netflix';
+ if(title.includes('disney') || id.includes('disney')) return 'disney';
+ if(title.includes('iplayer') || id.includes('iplayer')) return 'iplayer';
+ if(title.includes('youtube') || id.includes('youtube')) return 'youtube';
+ if(title.includes('itvx') || id.includes('itvx')) return 'itvx';
+ if(title.includes('apple tv') || id.includes('appletv')) return 'appletv';
+ return null;
+}
 function appiconsrc(eachapp){
+ const brand=tonightBrandForApp(eachapp);
+ if(brand) return 'access/brands/'+brand+'.jpg';
  if(eachapp._demo) return tonightDemoIcon(eachapp);
 	if(turstedapp){
 		return eachapp.folderPath+'/'+eachapp.icon;
@@ -115,8 +132,17 @@ function maketile (eachapp,inbar,recent) {
 		appicon.style="background-color : " + eachapp.iconColor +";";
 	}
 		appicon.addEventListener("error", function(e){
-			e.target.src=appdir+"/access/fallback.png";
-		});
+            if(eachapp._demo){
+              const fallback=tonightDemoIcon(eachapp);
+              if(e.target.src!==fallback) e.target.src=fallback;
+              return;
+            }
+            // A missing bundled logo falls back to the launcher's original icon.
+            const standard=(turstedapp?eachapp.folderPath+'/'+eachapp.icon:
+                  rooted?'hack/'+eachapp.folderPath+'/'+eachapp.icon:
+                  'access/fallback.png');
+            if(!e.target.src.endsWith(standard)) e.target.src=standard;
+        });
 		appname.innerText=appdisplayname(eachapp);
 		appitem.namelabel=appname;
 		appname.setAttribute("class","appname");
