@@ -75,6 +75,7 @@ function appmenuopen() {
 }
 
 function contextname() {
+	if(typeof serviceGridIsOpen==="function" && serviceGridIsOpen()){ return "services"; }
 	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){ return "homekeyboard"; }
 	if(renameopen()){ return "rename"; }
 	if(folderpickeropen()){ return "picker"; }
@@ -85,6 +86,7 @@ function contextname() {
 }
 
 function contextelements() {
+	if(typeof serviceGridIsOpen==="function" && serviceGridIsOpen()){ return within(document.getElementById("servicegrid"),".service-card"); }
 	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){ return within(document.getElementById("homekeyboard"),"button"); }
 	if(renameopen()){ return within(renamebox,"button, input"); }
 	if(folderpickeropen()){ return within(folderpicker,"button, input"); }
@@ -262,6 +264,10 @@ function movecarriedbykey(key) {
 
 // ---- keys
 function handleback() {
+	if(typeof serviceGridIsOpen==="function" && serviceGridIsOpen()){
+		closeServiceGrid();
+		return;
+	}
 	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){
 		closeHomeKeyboard();
 		return;
@@ -320,6 +326,17 @@ function shortcut(code) {
 
 function onkey(event) {
 	const code=event.keyCode;
+	if(code===KEY_DOWN && contextname()==="home" && typeof openServiceGrid==="function"){
+		event.preventDefault();
+		keyboardmode=true;
+		openServiceGrid();
+		return;
+	}
+	if(code===KEY_UP && contextname()==="services" && typeof serviceGridAtTopRow==="function" && serviceGridAtTopRow()){
+		event.preventDefault();
+		closeServiceGrid();
+		return;
+	}
 	if(code===KEY_UP && contextname()==="home" && typeof openHomeKeyboard==="function"){
 		event.preventDefault();
 		keyboardmode=true;
