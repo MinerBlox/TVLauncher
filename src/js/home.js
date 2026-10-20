@@ -84,6 +84,7 @@
     else search.value += key === "space" ? " " : key.toLowerCase();
     search.dispatchEvent(new Event("input", { bubbles: true }));
   }
+  search.addEventListener("input", function () { document.body.classList.toggle("home-query-present", !!search.value); });
   panel.addEventListener("click", function (event) {
     const key = event.target.closest("button[data-key]");
     if (key) pressKey(key.dataset.key);
@@ -91,10 +92,11 @@
   document.querySelectorAll("#featurecards .featuretile").forEach(function (tile) {
     tile.addEventListener("click", function () {
       search.value = tile.getAttribute("data-search") || "";
+      document.body.classList.toggle("home-query-present", !!search.value);
       openDrawer();
     });
   });
-  drawer.addEventListener("click", function () { search.value = ""; openDrawer(); });
+  drawer.addEventListener("click", function () { search.value = ""; document.body.classList.remove("home-query-present"); openDrawer(); });
   search.addEventListener("click", function (event) { event.preventDefault(); openHomeKeyboard(); });
   search.addEventListener("focus", function () { search.blur(); openHomeKeyboard(); });
   window.addEventListener("keydown", function (event) {
