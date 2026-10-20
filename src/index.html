@@ -10,6 +10,7 @@
 
 
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/tonight.css">
 
 <body>
 	<!-- Wallpaper is a video (hardware decoded, unlike CSS background images), driven by startbackground() in background.js: network
@@ -28,7 +29,16 @@
 	<div id="prefetchmaindiv">
 	<!-- Hack : make appluncher always loaded (just hidden) so it can be faster when i open/close it -->
 	<div id="maindiv">
-	<input type="checkbox"  id="realappbarbtu" >
+	<input type="checkbox" id="realappbarbtu">
+    <div id="tonight-chevron" aria-hidden="true"></div>
+    <section id="tonight-hero" aria-label="Find something to watch">
+      <h1>What are we watching today?</h1>
+      <div id="tonight-search">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="13.5" cy="13.5" r="9" stroke="currentColor" stroke-width="3"/><path d="m20 20 8 8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <input id="tonight-query" type="search" placeholder="Search for a movie or TV show..." aria-label="Search for a movie or TV show" autocomplete="off">
+      </div>
+      <p id="tonight-status" aria-live="polite"></p>
+    </section>
 	<!-- clock and date are full-screen layers placed by settings.js; the date sits in #clockstack (under the clock) or moves to #datelayer -->
 	<div id="clock" class="layer" data-v="center" data-h="center">
 		<div id="clockstack" class="clockstyle-digital">
@@ -146,6 +156,7 @@
 <script src="js/info.js"></script>
 <script src="js/screen.js"></script>
 <script src="js/main.js"></script>
+<script src="js/tonight.js"></script>
 </body>
 
 </html>

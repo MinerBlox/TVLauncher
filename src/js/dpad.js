@@ -92,7 +92,7 @@ function contextelements() {
 	if(realappbarbtu.checked){
 		return within(folderbar,"button").concat(within(appluncher,".appitem"),[settingsbtn,editbtn].filter(isvisible),within(appbar,".appitem"));
 	}
-	return within(appbar,".appitem").concat(within(recentrow,".appitem"),[infobtn].filter(isvisible));
+	return within(document.getElementById("tonight-hero"),"input").concat(within(appbar,".appitem"),within(recentrow,".appitem"),[infobtn].filter(isvisible));
 }
 
 // ---- focus

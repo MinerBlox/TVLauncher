@@ -16,6 +16,45 @@ let droptimer=null;
 	  let turstedapp=false,rooted=false;
 let appid='com.homebrew.openlauncher'
 let appdir='/media/developer/apps/usr/palm/applications/'+appid;
+/* Explicitly non-functional demo data for simulator / unprivileged installations.
+   It keeps the launcher visible but does not claim streaming apps are installed. */
+let tonightDemoMode=false;
+const TONIGHT_DEMO=[
+ {id:'demo.netflix',title:'Netflix',bg:'#050505',fg:'#e50914',short:'NETFLIX'},
+ {id:'demo.disney',title:'Disney+',bg:'#032c45',fg:'#ffffff',short:'Disney+'},
+ {id:'demo.iplayer',title:'BBC iPlayer',bg:'#200329',fg:'#ff3397',short:'iPLAYER'},
+ {id:'demo.youtube',title:'YouTube',bg:'#f3f3f3',fg:'#111111',short:'YouTube'},
+ {id:'demo.itvx',title:'ITVX',bg:'#00313b',fg:'#e9ff48',short:'itvX'},
+ {id:'demo.appletv',title:'Apple TV',bg:'#070707',fg:'#ffffff',short:'tv'},
+ {id:'demo.prime',title:'Prime Video',bg:'#0877bc',fg:'#ffffff',short:'prime video'},
+ {id:'demo.channel4',title:'Channel 4',bg:'#161825',fg:'#ffffff',short:'Channel 4'},
+ {id:'demo.plex',title:'Plex',bg:'#202027',fg:'#f6b52d',short:'plex'}
+].map(x=>({id:x.id,title:x.title,icon:'',folderPath:'',removable:false,_demo:x}));
+/* Local inline preview artwork based on the logos supplied in chat; these
+ * illustrative SVG treatments do not fetch network assets or claim to
+ * represent installed channels. */
+function tonightDemoIcon(a){
+ const x=a._demo, bg=x.bg, fg=x.fg;
+ let inner='';
+ if(x.id==='demo.netflix') inner='<text x="180" y="126" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-size="61" font-stretch="condensed" letter-spacing="3" font-weight="900" fill="#e50914">NETFLIX</text>';
+ else if(x.id==='demo.youtube') inner='<rect x="38" y="78" width="80" height="56" rx="18" fill="#ff0033"/><path d="M70 90 L70 122 L96 106Z" fill="white"/><text x="134" y="121" font-family="Arial,sans-serif" font-size="42" font-weight="800" fill="#202020">YouTube</text>';
+ else if(x.id==='demo.iplayer') inner='<rect x="104" y="42" width="45" height="44" fill="white"/><rect x="157" y="42" width="45" height="44" fill="white"/><rect x="210" y="42" width="45" height="44" fill="white"/><text x="126" y="75" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#210529">B</text><text x="180" y="75" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#210529">B</text><text x="233" y="75" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#210529">C</text><text x="180" y="147" text-anchor="middle" font-family="Arial,sans-serif" font-size="57" font-weight="800" fill="#ff3397">iPLAYER</text>';
+ else if(x.id==='demo.itvx') inner='<text x="180" y="138" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-size="126" font-weight="900" letter-spacing="-8" fill="#eaff48">itvX</text>';
+ else if(x.id==='demo.appletv') inner='<text x="180" y="140" text-anchor="middle" font-family="Arial,sans-serif" font-size="122" font-weight="500" fill="#f7f7f7">●tv</text>';
+ else if(x.id==='demo.disney') inner='<path d="M83 66 Q193 -3 297 77" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><text x="177" y="139" text-anchor="middle" font-family="Brush Script MT,Segoe Script,cursive" font-style="italic" font-size="73" fill="white">Disney+</text>';
+ else inner='<text x="180" y="125" text-anchor="middle" font-family="Arial,sans-serif" font-size="43" font-weight="bold" fill="'+fg+'">'+x.short+'</text>';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220"><rect width="360" height="220" rx="28" fill="'+bg+'"/>'+inner+'</svg>';
+ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+function tonightEnableDemo(){
+ tonightDemoMode=true;
+ applist=TONIGHT_DEMO;
+ settings.pinned=TONIGHT_DEMO.slice(0,6).map(a=>a.id);
+ var b=document.createElement('div');
+ b.id='tonight-demo-banner';b.textContent='SIMULATOR PREVIEW — sample apps; launching disabled';
+ document.body.appendChild(b);
+}
+
 
  
 // Built once per app and kept (see tilecache), so changing the order, pins or hidden apps never recreates the icons.
@@ -53,7 +92,25 @@ function watchmarquee(tile){
 }
 
 // where an app's icon comes from (also used by the miniature icons on folder tiles)
+function tonightBrandForApp(eachapp){
+ const title=String(eachapp.title||eachapp.appName||'').toLowerCase();
+ const id=String(eachapp.id||'').toLowerCase();
+ if(eachapp._demo){
+   return { 'demo.netflix':'netflix','demo.disney':'disney','demo.iplayer':'iplayer',
+   'demo.youtube':'youtube','demo.itvx':'itvx','demo.appletv':'appletv' }[id] || null;
+ }
+ if(title.includes('netflix') || id.includes('netflix')) return 'netflix';
+ if(title.includes('disney') || id.includes('disney')) return 'disney';
+ if(title.includes('iplayer') || id.includes('iplayer')) return 'iplayer';
+ if(title.includes('youtube') || id.includes('youtube')) return 'youtube';
+ if(title.includes('itvx') || id.includes('itvx')) return 'itvx';
+ if(title.includes('apple tv') || id.includes('appletv')) return 'appletv';
+ return null;
+}
 function appiconsrc(eachapp){
+ const brand=tonightBrandForApp(eachapp);
+ if(brand) return 'access/brands/'+brand+'.jpg';
+ if(eachapp._demo) return tonightDemoIcon(eachapp);
 	if(turstedapp){
 		return eachapp.folderPath+'/'+eachapp.icon;
 	} else if(rooted) {
@@ -75,8 +132,17 @@ function maketile (eachapp,inbar,recent) {
 		appicon.style="background-color : " + eachapp.iconColor +";";
 	}
 		appicon.addEventListener("error", function(e){
-			e.target.src=appdir+"/access/fallback.png";
-		});
+            if(eachapp._demo){
+              const fallback=tonightDemoIcon(eachapp);
+              if(e.target.src!==fallback) e.target.src=fallback;
+              return;
+            }
+            // A missing bundled logo falls back to the launcher's original icon.
+            const standard=(turstedapp?eachapp.folderPath+'/'+eachapp.icon:
+                  rooted?'hack/'+eachapp.folderPath+'/'+eachapp.icon:
+                  'access/fallback.png');
+            if(!e.target.src.endsWith(standard)) e.target.src=standard;
+        });
 		appname.innerText=appdisplayname(eachapp);
 		appitem.namelabel=appname;
 		appname.setAttribute("class","appname");
@@ -165,6 +231,7 @@ function maketile (eachapp,inbar,recent) {
 	}
 
 function launchapp(id){
+ if(tonightDemoMode){ toasty("Preview only — apps cannot launch in simulator mode."); return; }
 	if(rooted){
 		lunacallasroot('luna://com.webos.service.applicationManager/launch',{"id":id});
 	} else {
@@ -436,18 +503,18 @@ await iconhack(appdir);
 var applistraw=await lunacallasroot('luna://com.webos.applicationManager/listApps',{});
 applist=applistraw.apps;
 	} else {
-		await toasty("This app required app related permission or root.This app is closing due to insufficient permission...");
-		window.webOSSystem.close();
+		tonightEnableDemo();
 	}
 }else {
-applist=permtest.apps;
+applist=permtest.apps || [];
+if(applist.length===0){ tonightEnableDemo(); }
 }
 
 applist.some((eachapp) => {if (eachapp.id === appid) {
 	appdir=eachapp.folderPath;
 	turstedapp=(eachapp.trustLevel==="trusted");
 }});
-if (!(turstedapp || rooted )) {
+if (!(turstedapp || rooted || tonightDemoMode)) {
 		await toasty("This app required trusted trustLevel or root.Thing will break without either of those. ");
 	
 }
@@ -567,6 +634,7 @@ async function uninstallapp(id){
 }
 
 async function reload() {
+ if(tonightDemoMode) return;
 
 	let newapplist, newapplistraw;
 	if (noappperm){
@@ -590,7 +658,7 @@ render();
 }
 async function inithomescreen() {
 await initpermcheck();
-loadsettings();
+if(!tonightDemoMode) loadsettings();
 syncsystemfolders();
 loadrecent();
 editbtn.addEventListener("click",toggleedit);
