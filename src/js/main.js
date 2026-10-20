@@ -458,7 +458,7 @@ function render() {
 	const byid={};
 	applist.forEach((eachapp) => {byid[eachapp.id]=eachapp;});
 	const barapps=pinnedids().filter((eachid) => byid[eachid] && !ishidden(eachid)).map((eachid) => byid[eachid]);
-	placetiles(appbar,barapps.map((eachapp) => tilefor(eachapp,true)),1);   // the Apps button stays first
+	placetiles(appbar,barapps.map((eachapp) => tilefor(eachapp,true)),2);   // the Apps button and reference dock stay first
 	placetiles(appluncher,drawertilelist(),0);
 	renderfolderbar();
 	renderrecent();
