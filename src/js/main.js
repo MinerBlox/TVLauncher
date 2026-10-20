@@ -20,26 +20,36 @@ let appdir='/media/developer/apps/usr/palm/applications/'+appid;
    It keeps the launcher visible but does not claim streaming apps are installed. */
 let tonightDemoMode=false;
 const TONIGHT_DEMO=[
- {id:'demo.netflix',title:'Netflix',bg:'#171717',fg:'#e50914',short:'NETFLIX'},
- {id:'demo.youtube',title:'YouTube',bg:'#ffffff',fg:'#ed1b24',short:'YouTube'},
- {id:'demo.iplayer',title:'BBC iPlayer',bg:'#211c40',fg:'#e7bdff',short:'iPLAYER'},
- {id:'demo.itvx',title:'ITVX',bg:'#15131b',fg:'#ffb000',short:'ITVX'},
- {id:'demo.disney',title:'Disney+',bg:'#102b55',fg:'#ffffff',short:'Disney+'},
+ {id:'demo.netflix',title:'Netflix',bg:'#050505',fg:'#e50914',short:'NETFLIX'},
+ {id:'demo.disney',title:'Disney+',bg:'#032c45',fg:'#ffffff',short:'Disney+'},
+ {id:'demo.iplayer',title:'BBC iPlayer',bg:'#200329',fg:'#ff3397',short:'iPLAYER'},
+ {id:'demo.youtube',title:'YouTube',bg:'#f3f3f3',fg:'#111111',short:'YouTube'},
+ {id:'demo.itvx',title:'ITVX',bg:'#00313b',fg:'#e9ff48',short:'itvX'},
+ {id:'demo.appletv',title:'Apple TV',bg:'#070707',fg:'#ffffff',short:'tv'},
  {id:'demo.prime',title:'Prime Video',bg:'#0877bc',fg:'#ffffff',short:'prime video'},
  {id:'demo.channel4',title:'Channel 4',bg:'#161825',fg:'#ffffff',short:'Channel 4'},
- {id:'demo.plex',title:'Plex',bg:'#202027',fg:'#f6b52d',short:'plex'},
- {id:'demo.settings',title:'Settings',bg:'#8d949e',fg:'#ffffff',short:'Settings'}
+ {id:'demo.plex',title:'Plex',bg:'#202027',fg:'#f6b52d',short:'plex'}
 ].map(x=>({id:x.id,title:x.title,icon:'',folderPath:'',removable:false,_demo:x}));
+/* Local inline preview artwork based on the logos supplied in chat; these
+ * illustrative SVG treatments do not fetch network assets or claim to
+ * represent installed channels. */
 function tonightDemoIcon(a){
- const x=a._demo;
- const logo=x.short.replace(/&/g,'&amp;').replace(/</g,'&lt;');
- const svg='<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220"><defs><linearGradient id="g" x2="0.2" y2="1"><stop stop-color="'+x.bg+'"/><stop offset="1" stop-color="'+x.bg+'"/></linearGradient></defs><rect width="360" height="220" rx="32" fill="url(#g)"/><text x="180" y="120" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="'+(logo.length>10?35:logo.length>7?43:60)+'" fill="'+x.fg+'">'+logo+'</text></svg>';
+ const x=a._demo, bg=x.bg, fg=x.fg;
+ let inner='';
+ if(x.id==='demo.netflix') inner='<text x="180" y="126" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-size="61" font-stretch="condensed" letter-spacing="3" font-weight="900" fill="#e50914">NETFLIX</text>';
+ else if(x.id==='demo.youtube') inner='<rect x="38" y="78" width="80" height="56" rx="18" fill="#ff0033"/><path d="M70 90 L70 122 L96 106Z" fill="white"/><text x="134" y="121" font-family="Arial,sans-serif" font-size="42" font-weight="800" fill="#202020">YouTube</text>';
+ else if(x.id==='demo.iplayer') inner='<rect x="104" y="42" width="45" height="44" fill="white"/><rect x="157" y="42" width="45" height="44" fill="white"/><rect x="210" y="42" width="45" height="44" fill="white"/><text x="126" y="75" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#210529">B</text><text x="180" y="75" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#210529">B</text><text x="233" y="75" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#210529">C</text><text x="180" y="147" text-anchor="middle" font-family="Arial,sans-serif" font-size="57" font-weight="800" fill="#ff3397">iPLAYER</text>';
+ else if(x.id==='demo.itvx') inner='<text x="180" y="138" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-size="126" font-weight="900" letter-spacing="-8" fill="#eaff48">itvX</text>';
+ else if(x.id==='demo.appletv') inner='<text x="180" y="140" text-anchor="middle" font-family="Arial,sans-serif" font-size="122" font-weight="500" fill="#f7f7f7">●tv</text>';
+ else if(x.id==='demo.disney') inner='<path d="M83 66 Q193 -3 297 77" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><text x="177" y="139" text-anchor="middle" font-family="Brush Script MT,Segoe Script,cursive" font-style="italic" font-size="73" fill="white">Disney+</text>';
+ else inner='<text x="180" y="125" text-anchor="middle" font-family="Arial,sans-serif" font-size="43" font-weight="bold" fill="'+fg+'">'+x.short+'</text>';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220"><rect width="360" height="220" rx="28" fill="'+bg+'"/>'+inner+'</svg>';
  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
 function tonightEnableDemo(){
  tonightDemoMode=true;
  applist=TONIGHT_DEMO;
- settings.pinned=TONIGHT_DEMO.slice(0,5).map(a=>a.id);
+ settings.pinned=TONIGHT_DEMO.slice(0,6).map(a=>a.id);
  var b=document.createElement('div');
  b.id='tonight-demo-banner';b.textContent='SIMULATOR PREVIEW — sample apps; launching disabled';
  document.body.appendChild(b);
