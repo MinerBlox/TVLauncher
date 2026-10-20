@@ -1,16 +1,16 @@
-# Tonight TV branding assets
+# Bundled streaming icons
 
-The implementation on the `design/white-dotted-tv-ui` branch supports six locally bundled streaming logo images:
+The branch now includes six vector streaming tiles directly in `src/access/brands/`:
 
-- `src/access/brands/netflix.jpg`
-- `src/access/brands/disney.jpg`
-- `src/access/brands/iplayer.jpg`
-- `src/access/brands/youtube.jpg`
-- `src/access/brands/itvx.jpg`
-- `src/access/brands/appletv.jpg`
+- netflix.svg
+- disney.svg
+- iplayer.svg
+- youtube.svg
+- itvx.svg
+- appletv.svg
 
-These files are kept separate from the source branch for now. Use the logo images supplied by the project owner, at a 540×330 aspect ratio (or crop proportionately). When the image is present it is shown for that streaming-service tile. Simulator previews fall back to built-in illustrative SVG artwork if the file has not been added.
+The launcher automatically displays them for matching app names/IDs, or for simulator sample tiles. These are lightweight vector recreations of the supplied brand references, not byte-for-byte copies of the uploaded JPG images.
 
-The centre Apps/grid button is sorted to slot 4 of a seven-item dock containing six pinned apps. The real TV retains OpenLauncher's app-launching logic; icon images are purely artwork, not evidence an app is installed.
+**To preview:** download or pull the current `design/white-dotted-tv-ui` branch, and select the `src` folder through Simulator → File → Launch App. No additional logo ZIP is needed.
 
-To test in the simulator, add these six image files to `src/access/brands/` of the extracted development branch, then File → Launch App → select `src`.
+Simulator sample tiles are not working streaming services. On the physical TV, launching installed apps still requires privilege and app-ID compatibility testing.
