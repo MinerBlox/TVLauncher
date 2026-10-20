@@ -33,6 +33,29 @@
     function updateTiles(){document.querySelectorAll('.appitem').forEach(setGlow);}
     new MutationObserver(updateTiles).observe(document.getElementById('maindiv'),{subtree:true,childList:true});
     updateTiles();
+    // Simulator safety net: applicationManager may hang indefinitely rather than
+    // rejecting a listApps request. Show explicitly labelled sample apps when
+    // nothing was rendered, without depending on the LG service promise settling.
+    function ensurePreviewTiles(){
+      var items=document.querySelectorAll('#appbar > .appitem');
+      if(items.length>0 || typeof tonightEnableDemo!=='function') return;
+      try {
+        tonightEnableDemo();
+        if(typeof syncsystemfolders==='function') syncsystemfolders();
+        if(typeof render==='function') render();
+        updateTiles();
+      } catch(err) {
+        if(status) status.textContent='Preview setup error: '+String(err.message||err);
+      }
+    }
+    window.setTimeout(ensurePreviewTiles,2200);
+    // Manual recovery: pressing P also loads the sample icons if the service
+    // returns incomplete data. This never launches or changes installed apps.
+    document.addEventListener('keydown',function(e){
+      if((e.key==='p'||e.key==='P')&&!e.target.matches('input,textarea')){
+        ensurePreviewTiles();
+      }
+    });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
