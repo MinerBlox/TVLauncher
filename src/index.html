@@ -161,38 +161,7 @@
 <script src="js/screen.js"></script>
 <script src="js/main.js"></script>
 
-<script>
-(function () {
-	const search = document.getElementById("appsearch");
-	const toggle = document.getElementById("realappbarbtu");
-	const drawer = document.getElementById("drawerhandle");
-	function filterApps() {
-		const query = search.value.trim().toLocaleLowerCase();
-		document.querySelectorAll("#appluncher .appitem").forEach(function (tile) {
-			const name = tile.querySelector(".appname");
-			tile.style.display = !query || (name && name.textContent.toLocaleLowerCase().includes(query)) ? "" : "none";
-		});
-	}
-	function openDrawer() {
-		toggle.checked = true;
-		filterApps();
-		search.focus();
-	}
-	document.querySelectorAll("#featurecards .featuretile").forEach(function (tile) {
-		tile.addEventListener("click", function () { search.value = tile.getAttribute("data-search") || ""; openDrawer(); filterApps(); });
-	});
-	drawer.addEventListener("click", openDrawer);
-	search.addEventListener("focus", openDrawer);
-	search.addEventListener("input", function () { openDrawer(); filterApps(); });
-	search.addEventListener("keydown", function (event) {
-		if (event.key === "Enter") {
-			const first = Array.from(document.querySelectorAll("#appluncher .appitem")).find(function (tile) { return tile.style.display !== "none"; });
-			if (first) first.click();
-		}
-		if (event.key === "Escape") { search.blur(); }
-	});
-})();
-</script>
+<script src="js/home.js"></script>
 </body>
 
 </html>
