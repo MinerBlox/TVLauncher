@@ -1234,3 +1234,9 @@ body.home-query-present #appsearch { color:#323438 !important; }
   #homehero::before { animation:none; }
   #servicegrid, .service-artwork { transition:none; }
 }
+
+.service-artwork { gap:.62vw; }
+.service-artwork svg { flex:0 0 auto; width:2.6vw; height:2.6vw; max-height:5vh; fill:currentColor; }
+.service-artwork.vector-wordmark svg { width:7.4vw; height:5vh; }
+.service-card[data-brand="netflix"] .service-mark { font-size:1.35vw; letter-spacing:.04em; }
+.service-card[data-brand="youtube"] .service-mark { font-size:1.4vw; letter-spacing:-.05em; }
