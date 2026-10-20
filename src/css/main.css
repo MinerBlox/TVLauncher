@@ -1083,3 +1083,7 @@ body.home-search-active #appsearch::placeholder { color: #999 !important; }
   #homehero::before { animation:none; }
   #homekeyboard, .homekeyboard-key, #featurecards .featuretile { transition:none !important; }
 }
+
+body.home-query-present #homesearch { background:#fff !important; border:1px solid rgba(20,20,20,.08) !important; box-shadow:0 1.2vh 2.2vh rgba(0,0,0,.14) !important; }
+body.home-query-present #homesearch svg { visibility:visible !important; }
+body.home-query-present #appsearch { color:#323438 !important; }
