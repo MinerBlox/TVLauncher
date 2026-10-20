@@ -1,0 +1,1 @@
+Place the six supplied logo JPGs here: netflix.jpg, disney.jpg, iplayer.jpg, youtube.jpg, itvx.jpg and appletv.jpg. The launcher loads these assets by filename. No redrawn SVG logo assets are included.
