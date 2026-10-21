@@ -2144,3 +2144,75 @@ body.home-query-present #appsearch { color:#323438 !important; }
   line-height:1.35;
 }
 #homekeyboard .search-setup-credits img { width:5.5vw; height:auto; flex:none; }
+
+/* Live TMDB cards retain the search screen's landscape tile treatment. */
+#homekeyboard .search-result-meta {
+  position:absolute;
+  left:.85vw;
+  right:.85vw;
+  bottom:3.75vh;
+  z-index:1;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  color:rgba(255,255,255,.86);
+  font-size:.79vw;
+  font-weight:600;
+  text-shadow:0 .2vh .5vh rgba(0,0,0,.8);
+}
+#homekeyboard .search-result-art strong { color:#fff; }
+#homekeyboard .search-result.has-image .search-result-meta { color:#fff; }
+#homekeyboard .search-result.has-image .search-result-name { bottom:1.1vh; }
+#homekeyboard .search-provider-entries {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:.65vw;
+}
+#homekeyboard .search-provider {
+  min-width:0;
+  min-height:5.4vh;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:.3vh;
+  padding:.7vh .85vw;
+  color:#293540;
+  text-decoration:none;
+}
+#homekeyboard .search-provider strong {
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  font-size:1.02vw;
+}
+#homekeyboard .search-provider-facts {
+  color:#75818d;
+  font-size:.8vw;
+}
+#homekeyboard a.search-provider:hover,
+#homekeyboard a.search-provider.dfocus {
+  border-color:#647381;
+  background:#fff;
+  box-shadow:0 .4vh 1.2vh rgba(32,47,60,.1);
+}
+#homekeyboard .search-detail-metadata { font-size:1.14vw; }
+#homekeyboard .search-detail-art { background-position:center top; }
+#homekeyboard .search-setup-card { max-height:84vh; overflow-y:auto; }
+#homekeyboard #watchmode-token {
+  width:100%;
+  box-sizing:border-box;
+  padding:1.3vh 1vw;
+  border:1px solid #bbc5cd;
+  border-radius:.6vh;
+  outline:0;
+  color:#222a32;
+  background:#fbfcfd;
+  font:1.12vw Arial,Helvetica,sans-serif;
+  -webkit-text-security:disc;
+}
+#homekeyboard #watchmode-token:focus { border-color:#556672; }
+
+#homekeyboard .search-result-image { object-position:center 24%; }
