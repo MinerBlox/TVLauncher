@@ -1885,3 +1885,24 @@ body.home-query-present #appsearch { color:#323438 !important; }
   -webkit-mask-image:radial-gradient(ellipse,#000 62%,transparent 100%);
   mask-image:radial-gradient(ellipse,#000 62%,transparent 100%);
 }
+
+/* The selected title view uses the same flat light treatment. */
+#homekeyboard .search-detail {
+  background-color:rgba(250,251,252,.97);
+  background-image:radial-gradient(circle,rgba(174,181,191,.42) 0 1.55px,transparent 2px);
+  background-size:2.717vw 4.82vh;
+}
+#homekeyboard .search-detail-art {
+  border-radius:1.8vh;
+  box-shadow:0 1.2vh 2.8vh rgba(25,34,45,.2);
+}
+#homekeyboard .search-detail-copy h2 { font-size:3.25vw; }
+#homekeyboard .search-detail-search {
+  border:1px solid rgba(155,170,187,.28);
+  background:#fff; color:#334454;
+  box-shadow:0 .45vh 1.2vh rgba(38,48,59,.12);
+}
+#homekeyboard .search-detail-search:hover,
+#homekeyboard .search-detail-search.dfocus {
+  box-shadow:0 .7vh 1.8vh rgba(38,48,59,.18);
+}
