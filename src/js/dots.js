@@ -155,3 +155,80 @@
   }
   requestAnimationFrame(paint);
 })();
+
+// The dock covers part of the photographed dot field. Rebuild those dots on a
+// separate canvas, above the replacement shelf art and below the glass tray.
+(function () {
+  const shelf = document.getElementById("featurecards");
+  if (!shelf) return;
+  const canvas = document.createElement("canvas");
+  canvas.id = "home-shelf-dots";
+  canvas.setAttribute("aria-hidden","true");
+  shelf.appendChild(canvas);
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const columns = [40.5,86,131.5,177.5,222.5,268.5,314,359.5,404.5,450.5,495.5,540.5,585.5,630.5,676.5,721.5,766.5,810.5,854.5,899,943.5,988.5,1034,1079.5,1125,1170,1215.5,1260.5,1306,1351.5,1397,1442.5,1488.5,1533.5,1579.5,1624.5,1670.5];
+  const rows = [662.5,707.5,752,796.5,840.5,885.5,930.5];
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let width = 0, height = 0;
+  function resize() {
+    width = Math.round(shelf.clientWidth);
+    height = Math.round(shelf.clientHeight);
+    const pixelRatio = Math.min(window.devicePixelRatio || 1,2);
+    canvas.width = Math.round(width * pixelRatio);
+    canvas.height = Math.round(height * pixelRatio);
+    context.setTransform(pixelRatio,0,0,pixelRatio,0,0);
+  }
+  resize();
+  window.addEventListener("resize",resize);
+  const started = performance.now();
+  let lastFrame = 0;
+  function paint(now) {
+    requestAnimationFrame(paint);
+    if (document.hidden || now - lastFrame < 32) return;
+    lastFrame = now;
+    context.clearRect(0,0,width,height);
+    const phase = (now - started) % 9000;
+    const scaleX = width / 1672, scaleY = height / 941;
+    const scale = Math.min(scaleX,scaleY);
+    columns.forEach(function (x,col) {
+      rows.forEach(function (y,row) {
+        const age = phase - (2200 + col * 76 + ((row + 14) % 4) * 45);
+        const pulse = !still && age > 0 && age < 850 ? Math.sin(Math.PI * age / 850) : 0;
+        context.beginPath();
+        context.arc(x * scaleX,y * scaleY,(1.65 + pulse * 4.35) * scale,0,Math.PI * 2);
+        context.fillStyle = "rgba(133,143,160," + (.30 + pulse * .49).toFixed(3) + ")";
+        context.fill();
+      });
+    });
+  }
+  requestAnimationFrame(paint);
+})();
+
+// Keep the greeting alive without moving the rest of the reference layout.
+(function () {
+  const verb = document.querySelector("#homehero .home-verb");
+  if (!verb) return;
+  const choices = ["watching","streaming","bingeing"];
+  let current = Math.floor(Math.random() * choices.length);
+  verb.textContent = choices[current];
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function change() {
+    const next = (current + 1 + Math.floor(Math.random() * 2)) % choices.length;
+    const oldWord = choices[current], newWord = choices[next];
+    current = next;
+    if (reduced) { verb.textContent = newWord; return; }
+    let step = oldWord.length;
+    function erase() {
+      verb.textContent = oldWord.slice(0,--step);
+      if (step > 0) setTimeout(erase,80);
+      else { step = 0; setTimeout(type,180); }
+    }
+    function type() {
+      verb.textContent = newWord.slice(0,++step);
+      if (step < newWord.length) setTimeout(type,92);
+    }
+    erase();
+  }
+  setInterval(change,45000);
+})();

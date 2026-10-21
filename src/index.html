@@ -27,7 +27,7 @@
 	<script>bgvideo.src="access/wallpaper/loop.mp4";bgvideo.play().catch(()=>{});</script>
 	<div id="homehero" aria-label="OpenLauncher home">
 		<button id="drawerhandle" aria-label="Browse apps" title="Browse apps"><svg viewBox="0 0 32 16" aria-hidden="true"><path d="M3 12 16 4l13 8" /></svg></button>
-		<h1>What are we watching today?</h1>
+		<h1>What are we <span class="home-verb">watching</span> today?</h1>
 		<label id="homesearch">
 			<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"></circle><path d="m20 20 9 9"></path></svg>
 			<input id="appsearch" type="search" placeholder="Search for a movie or TV show..." autocomplete="off" aria-label="Search apps">
@@ -137,6 +137,7 @@
 <button class="featuretile" type="button" aria-label="YouTube" data-brand="youtube"><svg class="feature-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></button>
 <button class="featuretile" type="button" aria-label="BBC iPlayer" data-brand="iplayer"><img class="feature-logo" src="access/services/iplayer.svg" alt="" draggable="false"></button>
 <button class="featuretile" type="button" aria-label="Prime Video" data-brand="prime"><img class="feature-logo" src="access/services/prime.svg" alt="" draggable="false"></button>
+<div class="next-row-peek" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
 </div>
 	</div>
 

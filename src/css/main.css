@@ -2490,3 +2490,158 @@ body.home-query-present #appsearch { color:#323438 !important; }
              inset 0 1px 0 rgba(255,255,255,.95);
 }
 #featurecards .featuretile { z-index:2; }
+
+/* Home greeting, continuous dot field, and translucent app dock. */
+#homehero h1 {
+  visibility:visible !important;
+  left:50%;
+  width:38vw;
+  z-index:1;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  background:linear-gradient(90deg,rgba(250,251,252,0),#fafbfc 11%,#fafbfc 89%,rgba(250,251,252,0));
+}
+#homehero .home-verb { display:inline; }
+#featurecards::before {
+  top:62vh;
+  background:linear-gradient(to bottom,
+    rgba(250,251,252,0) 0,
+    rgba(250,251,252,.55) 4vh,
+    #fafbfc 9vh,
+    #fafbfc 100%);
+}
+#featurecards::after {
+  z-index:2;
+  border:1px solid rgba(255,255,255,.77);
+  background:linear-gradient(150deg,rgba(255,255,255,.54),rgba(248,250,252,.39) 55%,rgba(255,255,255,.48));
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  backdrop-filter:blur(12px) saturate(150%);
+  box-shadow:0 1.1vh 3.2vh rgba(42,51,61,.13),
+             inset 0 1px 0 rgba(255,255,255,.88),
+             inset 0 -1px 0 rgba(218,225,231,.28);
+}
+#featurecards #home-shelf-dots {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:block;
+  pointer-events:none;
+}
+#featurecards .featuretile { z-index:3; }
+#featurecards .next-row-peek {
+  position:absolute;
+  left:9.33vw;
+  right:9.33vw;
+  top:93.2vh;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(5,15.228vw);
+  gap:1.3vw;
+  pointer-events:none;
+}
+#featurecards .next-row-peek span {
+  height:16.6vh;
+  border-radius:2.5vh;
+  box-shadow:0 .8vh 2vh rgba(40,48,59,.18);
+}
+#featurecards .next-row-peek span:nth-child(1) { background:linear-gradient(135deg,#ffe500,#ffac3d); }
+#featurecards .next-row-peek span:nth-child(2) { background:linear-gradient(135deg,#ff315c,#e90954); }
+#featurecards .next-row-peek span:nth-child(3) { background:linear-gradient(135deg,#27c7fd,#0576f1); }
+#featurecards .next-row-peek span:nth-child(4) { background:linear-gradient(135deg,#00ddb0,#00b7a9); }
+#featurecards .next-row-peek span:nth-child(5) { background:linear-gradient(135deg,#bf6bf4,#a52be9); }
+
+/* A reliable TV-browser transition from the home search pill to the search view. */
+#homekeyboard {
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  -webkit-clip-path:none !important;
+  clip-path:none !important;
+  transform:translateY(2vh) scale(.975);
+  transform-origin:50% 44%;
+  transition:opacity .42s ease,transform .52s cubic-bezier(.2,.82,.2,1),visibility 0s .52s !important;
+}
+#homekeyboard.open {
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transform:none;
+  transition:opacity .42s ease,transform .52s cubic-bezier(.2,.82,.2,1),visibility 0s !important;
+}
+
+/* Artwork arrives as a prepared batch, then the complete row settles into place. */
+#homekeyboard .search-result.is-entering {
+  animation:search-card-reveal .42s cubic-bezier(.18,.78,.23,1) both;
+}
+@keyframes search-card-reveal {
+  from { opacity:0; transform:translateY(1.2vh) scale(.94); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+#homekeyboard .search-right { overflow:visible !important; }
+#homekeyboard .search-results {
+  box-sizing:border-box;
+  width:100%;
+  margin:0 !important;
+  padding:3.1vh 2.35vw 5vh !important;
+  scroll-padding-top:3vh;
+  scroll-padding-bottom:4vh;
+}
+#homekeyboard .search-result,
+#homekeyboard .search-result:focus,
+#homekeyboard .search-result:focus-visible,
+#homekeyboard .search-result.dfocus {
+  outline:0 !important;
+}
+#homekeyboard .search-result:hover,
+#homekeyboard .search-result:focus-visible,
+#homekeyboard .search-result.dfocus { z-index:3; }
+#homekeyboard .search-result:focus-visible .search-result-art {
+  transform:scale(1.055);
+  box-shadow:0 0 2.5vh var(--art-bg),0 1.25vh 2.7vh var(--art-bg);
+}
+#homekeyboard .search-detail-copy { box-sizing:border-box; padding:.7vw; }
+#homekeyboard .search-provider-entries { gap:1vw; padding:.25vw; }
+#homekeyboard .search-provider,
+#homekeyboard .search-provider:focus,
+#homekeyboard .search-provider:focus-visible,
+#homekeyboard .search-provider.dfocus {
+  outline:0 !important;
+  box-shadow:none;
+  border-color:rgba(100,112,124,.15);
+}
+#homekeyboard a.search-provider:hover,
+#homekeyboard a.search-provider:focus,
+#homekeyboard a.search-provider:focus-visible,
+#homekeyboard a.search-provider.dfocus {
+  outline:0 !important;
+  border-color:rgba(100,112,124,.33) !important;
+  background:#fff;
+  box-shadow:0 .5vh 1.5vh rgba(32,47,60,.13) !important;
+  transform:translateY(-.12vh);
+}
+@media (prefers-reduced-motion:reduce) {
+  #homekeyboard,#homekeyboard.open,#homekeyboard .search-result.is-entering {
+    animation:none !important;
+    transition:none !important;
+    transform:none !important;
+  }
+}
+
+/* Keep the dialog at its destination size while invisible so opening can animate. */
+#homekeyboard {
+  position:fixed !important;
+  inset:0 !important;
+  left:0 !important;
+  top:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  overflow:hidden !important;
+  background:#fafbfc !important;
+}

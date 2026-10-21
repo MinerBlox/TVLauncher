@@ -64,7 +64,13 @@
   let tmdbToken = readCredential("tvlauncher_tmdb_token", CONFIG.TMDB_API_KEY);
   let watchmodeToken = readCredential("tvlauncher_watchmode_token", CONFIG.WATCHMODE_API_KEY);
   let currentItems = [];
+  let pendingItems = [];
   let loadedQuery = null;
+  let searchPages = {tv:0,movie:0};
+  let searchTotals = {tv:0,movie:0};
+  let loadingMore = false;
+  let searchAbort = null;
+  const SEARCH_BATCH_SIZE = 12;
   let searchPending = false;
   let searchError = "";
   let searchTimer = null;
@@ -99,28 +105,80 @@
     try { localStorage.setItem(key, JSON.stringify({savedAt:Date.now(),data:data})); }
     catch (error) {} // Search and availability still work when storage is full.
   }
-  function tmdbGet(path, token) {
+  function tmdbGet(path, token, signal) {
     const credential = token || tmdbToken;
     const isApiKey = /^[a-f0-9]{32}$/i.test(credential);
     const url = "https://api.themoviedb.org/3" + path +
       (isApiKey ? (path.indexOf("?") === -1 ? "?" : "&") + "api_key=" + encodeURIComponent(credential) : "");
     const headers = isApiKey ? {Accept:"application/json"} :
       {Authorization:"Bearer " + credential,Accept:"application/json"};
-    return fetch(url,{headers:headers}).then(function (response) {
+    return fetch(url,{headers:headers,signal:signal}).then(function (response) {
       if (!response.ok) throw new Error(response.status === 401 ? "TMDB rejected this key." : "TMDB is unavailable right now.");
       return response.json();
     });
   }
-  function tmdbSearchPath(query) {
-    return query ? "/search/multi?language=en-GB&include_adult=false&page=1&query=" + encodeURIComponent(query)
-      : "/trending/all/week?language=en-GB";
+  function tmdbSearchPath(query,media,page) {
+    return query ? "/search/" + media + "?language=en-GB&include_adult=false&page=" + page +
+      "&query=" + encodeURIComponent(query)
+      : "/trending/all/week?language=en-GB&page=" + page;
+  }
+  function interleave(tv,movies) {
+    const combined = [];
+    const seen = Object.create(null);
+    const count = Math.max(tv.length,movies.length);
+    for (let index = 0; index < count; index++) {
+      [tv[index],movies[index]].forEach(function (item) {
+        if (!item) return;
+        const key = item.tmdbMedia + ":" + item.tmdbId;
+        if (!seen[key]) { seen[key] = true; combined.push(item); }
+      });
+    }
+    return combined;
+  }
+  function preloadArtwork(items) {
+    return Promise.all(items.map(function (item) {
+      if (!item.image) return Promise.resolve();
+      return new Promise(function (resolve) {
+        const image = new Image();
+        let done = false;
+        const timer = setTimeout(function () { finish(false); },2200);
+        function finish(loaded) {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          image.onload = null;
+          image.onerror = null;
+          if (!loaded) item.image = "";
+          resolve();
+        }
+        image.onload = function () { finish(true); };
+        image.onerror = function () { finish(false); };
+        image.src = item.image;
+        if (image.complete && image.naturalWidth) finish(true);
+      });
+    }));
+  }
+  function fetchSearchPage(query,page,signal) {
+    if (!query) return tmdbGet(tmdbSearchPath("", "",page),undefined,signal).then(function (data) {
+      return {items:(data.results || []).map(mapTmdb).filter(Boolean),
+        pages:{tv:page,movie:page}, totals:{tv:data.total_pages || 0,movie:data.total_pages || 0}};
+    });
+    return Promise.all(["tv","movie"].map(function (media) {
+      return searchTotals[media] && page > searchTotals[media] ? Promise.resolve({results:[],total_pages:searchTotals[media]}) :
+        tmdbGet(tmdbSearchPath(query,media,page),undefined,signal);
+    })).then(function (payloads) {
+      const tv = (payloads[0].results || []).map(function (raw) { return mapTmdb(Object.assign({},raw,{media_type:"tv"})); }).filter(Boolean);
+      const movies = (payloads[1].results || []).map(function (raw) { return mapTmdb(Object.assign({},raw,{media_type:"movie"})); }).filter(Boolean);
+      return {items:interleave(tv,movies),pages:{tv:page,movie:page},
+        totals:{tv:payloads[0].total_pages || 0,movie:payloads[1].total_pages || 0}};
+    });
   }
   function mapTmdb(raw) {
     if (!raw || (raw.media_type !== "tv" && raw.media_type !== "movie")) return null;
     const title = raw.title || raw.name;
     if (!title || !Number.isFinite(Number(raw.id))) return null;
-    const poster = raw.poster_path ? "https://image.tmdb.org/t/p/w500" + raw.poster_path : "";
-    const backdrop = raw.backdrop_path ? "https://image.tmdb.org/t/p/w780" + raw.backdrop_path : "";
+    const poster = raw.poster_path ? "https://image.tmdb.org/t/p/w342" + raw.poster_path : "";
+    const backdrop = raw.backdrop_path ? "https://image.tmdb.org/t/p/w300" + raw.backdrop_path : "";
     return {
       title:title,
       type:raw.media_type === "tv" ? "TV SERIES" : "MOVIE",
@@ -157,6 +215,7 @@
     img.addEventListener("load",function () { card.classList.add("has-image"); });
     img.addEventListener("error",function () { img.remove(); });
     img.src = item.image;
+    card.classList.add("has-image"); // The batch was preloaded before its card was inserted.
     art.insertBefore(img,art.firstChild);
     card.style.setProperty("--poster-url",'url("' + item.image.replace(/"/g,"%22") + '")');
   }
@@ -200,40 +259,43 @@
     });
     pumpDetails();
   }
+  function makeResultCard(item) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "search-result is-entering";
+    card.dataset.tmdbId = item.tmdbId;
+    card.dataset.media = item.tmdbMedia;
+    card.style.setProperty("--art-bg",item.bg);
+    card.style.setProperty("--art-accent",item.accent);
+    card.innerHTML = '<span class="search-result-art" aria-hidden="true"><strong>' + item.art +
+      '</strong></span><span class="search-result-meta">' + itemMeta(item) +
+      '</span><span class="search-result-name">' + escapeHtml(item.title) + '</span>';
+    card.setAttribute("aria-label",item.title + ", " + itemMeta(item));
+    card.addEventListener("click",function () { showDetail(item); });
+    applyArtwork(card,item);
+    return card;
+  }
   function render() {
     const query = normalized(search.value);
     queryText.textContent = search.value || "Search for a movie or TV show...";
     queryText.classList.toggle("placeholder",!search.value);
     document.body.classList.toggle("home-query-present",!!search.value);
     heading.textContent = query ? "Results" : "Movies & TV";
-    results.innerHTML = "";
     const items = loadedQuery === query ? currentItems : [];
-    count.textContent = tmdbToken && !searchPending && !searchError ? items.length + (items.length === 1 ? " TITLE" : " TITLES") : "";
-    if (!tmdbToken) {
-      results.innerHTML = '<div class="search-empty">Add a TMDB key in Live search settings to browse movies and TV shows.</div>';
-    } else if (searchPending || loadedQuery !== query) {
-      results.innerHTML = '<div class="search-empty">Finding titles…</div>';
-    } else if (searchError) {
-      results.innerHTML = '<div class="search-empty">' + escapeHtml(searchError) + '</div>';
-    } else if (!items.length) {
-      results.innerHTML = '<div class="search-empty">No matching movies or TV shows found.</div>';
+    count.textContent = tmdbToken && !searchPending && !searchError ?
+      items.length + (items.length === 1 ? " TITLE" : " TITLES") : "";
+    if (!tmdbToken || searchPending || loadedQuery !== query || searchError || !items.length) {
+      results.innerHTML = '<div class="search-empty">' +
+        (!tmdbToken ? "Add a TMDB key in Live search settings to browse movies and TV shows." :
+        (searchPending || loadedQuery !== query) ? "Finding titles…" :
+        searchError ? escapeHtml(searchError) : "No matching movies or TV shows found.") + '</div>';
     } else {
-      items.forEach(function (item) {
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "search-result";
-        card.dataset.tmdbId = item.tmdbId;
-        card.dataset.media = item.tmdbMedia;
-        card.style.setProperty("--art-bg",item.bg);
-        card.style.setProperty("--art-accent",item.accent);
-        card.innerHTML = '<span class="search-result-art" aria-hidden="true"><strong>' + item.art +
-          '</strong></span><span class="search-result-meta">' + itemMeta(item) +
-          '</span><span class="search-result-name">' + escapeHtml(item.title) + '</span>';
-        card.setAttribute("aria-label",item.title + ", " + itemMeta(item));
-        card.addEventListener("click",function () { showDetail(item); });
-        results.appendChild(card);
-        applyArtwork(card,item);
-      });
+      const existing = results.querySelectorAll(".search-result").length;
+      if (existing > items.length || (existing === 0 && results.querySelector(".search-empty"))) results.innerHTML = "";
+      const start = results.querySelectorAll(".search-result").length;
+      const fragment = document.createDocumentFragment();
+      items.slice(start).forEach(function (item) { fragment.appendChild(makeResultCard(item)); });
+      results.appendChild(fragment);
     }
     suggestions.innerHTML = "";
     const unique = [];
@@ -259,12 +321,59 @@
     panel.querySelector(".search-credit").innerHTML =
       '<a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a> artwork and metadata · UK availability by Watchmode';
   }
+  function revealNextBatch(sequence) {
+    if (loadingMore || sequence !== searchSequence || !panel.classList.contains("open")) return;
+    if (!pendingItems.length) {
+      const next = Math.max(searchPages.tv,searchPages.movie) + 1;
+      if (next > Math.max(searchTotals.tv,searchTotals.movie)) return;
+      loadingMore = true;
+      fetchSearchPage(loadedQuery,next,searchAbort && searchAbort.signal).then(function (page) {
+        if (sequence !== searchSequence) return;
+        searchPages = page.pages;
+        searchTotals = page.totals;
+        const seen = Object.create(null);
+        currentItems.concat(pendingItems).forEach(function (item) { seen[item.tmdbMedia + ":" + item.tmdbId] = true; });
+        pendingItems = page.items.filter(function (item) {
+          const key = item.tmdbMedia + ":" + item.tmdbId;
+          if (seen[key]) return false;
+          seen[key] = true;
+          return true;
+        });
+        loadingMore = false;
+        revealNextBatch(sequence);
+      }).catch(function (error) {
+        loadingMore = false;
+        if (error.name !== "AbortError" && sequence === searchSequence) {
+          // Keep the visible results; scrolling can retry this page.
+        }
+      });
+      return;
+    }
+    loadingMore = true;
+    const batch = pendingItems.splice(0,SEARCH_BATCH_SIZE);
+    preloadArtwork(batch).then(function () {
+      loadingMore = false;
+      if (sequence !== searchSequence || !panel.classList.contains("open")) return;
+      currentItems = currentItems.concat(batch);
+      render();
+      hydrateTVCounts(batch,sequence);
+      requestAnimationFrame(function () {
+        if (results.scrollHeight <= results.clientHeight + 60) revealNextBatch(sequence);
+      });
+    });
+  }
   function scheduleRemoteSearch() {
     clearTimeout(searchTimer);
+    if (searchAbort) searchAbort.abort();
+    searchAbort = typeof AbortController === "function" ? new AbortController() : null;
     const query = normalized(search.value);
     const sequence = ++searchSequence;
     currentItems = [];
+    pendingItems = [];
     loadedQuery = null;
+    searchPages = {tv:0,movie:0};
+    searchTotals = {tv:0,movie:0};
+    loadingMore = false;
     results.scrollTop = 0;
     searchError = "";
     searchPending = !!tmdbToken;
@@ -272,31 +381,47 @@
     if (!tmdbToken) return;
     const cached = searchCache[query];
     if (cached && Date.now() - cached.savedAt < 10 * 60 * 1000) {
-      currentItems = cached.items;
+      pendingItems = cached.items.slice();
+      searchPages = cached.pages;
+      searchTotals = cached.totals;
       loadedQuery = query;
       searchPending = false;
-      render();
-      hydrateTVCounts(currentItems,sequence);
+      if (!pendingItems.length) render();
+      else revealNextBatch(sequence);
       return;
     }
     searchTimer = setTimeout(function () {
-      tmdbGet(tmdbSearchPath(query)).then(function (data) {
+      fetchSearchPage(query,1,searchAbort && searchAbort.signal).then(function (page) {
         if (sequence !== searchSequence || query !== normalized(search.value)) return;
-        currentItems = (data.results || []).map(mapTmdb).filter(Boolean).slice(0,18);
+        pendingItems = page.items;
+        searchPages = page.pages;
+        searchTotals = page.totals;
         loadedQuery = query;
         searchPending = false;
-        searchCache[query] = {savedAt:Date.now(),items:currentItems};
-        render();
-        hydrateTVCounts(currentItems,sequence);
+        searchCache[query] = {savedAt:Date.now(),items:page.items.slice(),
+          pages:page.pages,totals:page.totals};
+        if (!pendingItems.length) render();
+        else revealNextBatch(sequence);
       }).catch(function (error) {
-        if (sequence !== searchSequence) return;
+        if (sequence !== searchSequence || error.name === "AbortError") return;
         searchPending = false;
         loadedQuery = query;
         searchError = error.message || "Search is unavailable right now.";
         render();
       });
-    },query ? 400 : 90);
+    },query ? 230 : 80);
   }
+  results.addEventListener("scroll",function () {
+    if (results.scrollHeight - results.scrollTop - results.clientHeight < results.clientHeight * .8) {
+      revealNextBatch(searchSequence);
+    }
+  });
+  results.addEventListener("focusin",function (event) {
+    const card = event.target.closest(".search-result");
+    if (!card) return;
+    const cards = results.querySelectorAll(".search-result");
+    if (Array.prototype.indexOf.call(cards,card) >= cards.length - 6) revealNextBatch(searchSequence);
+  });
   function openSetup() {
     setup.classList.add("open");
     setup.setAttribute("aria-hidden","false");
@@ -558,6 +683,17 @@
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
     document.body.classList.remove("home-search-active");
+    clearTimeout(searchTimer);
+    if (searchAbort) searchAbort.abort();
+    ++searchSequence;
+    search.value = "";
+    currentItems = [];
+    pendingItems = [];
+    loadedQuery = null;
+    searchPending = false;
+    searchError = "";
+    loadingMore = false;
+    render();
     search.blur();
     if (restore !== false && typeof setfocus === "function") {
       setfocus(previousFocus && document.body.contains(previousFocus) ? previousFocus : document.querySelector("#featurecards .featuretile"));
