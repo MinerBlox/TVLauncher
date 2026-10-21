@@ -1689,3 +1689,199 @@ body.home-query-present #appsearch { color:#323438 !important; }
 #servicegrid .service-card:not(.home-card).dfocus .service-artwork {
   box-shadow:0 1.25vh 2.7vh rgba(26,38,53,.2);
 }
+
+
+/* Home focus uses only pixels from inside each tile; the hit target stays transparent. */
+#featurecards .featuretile,
+#featurecards .featuretile:hover,
+#featurecards .featuretile.dfocus {
+  border:0 !important;
+  outline:0 !important;
+  outline-offset:0 !important;
+  background-color:transparent !important;
+  background-image:url("../access/home-reference.png") !important;
+  background-size:105vw 105vh !important;
+  background-position:var(--focus-crop-x) -75.511vh !important;
+  background-repeat:no-repeat !important;
+}
+#featurecards .featuretile:hover,
+#featurecards .featuretile.dfocus {
+  transform:scale(1.06) !important;
+  box-shadow:0 0 2.4vh rgba(var(--glow-top),.7),
+             0 1.3vh 3vh rgba(var(--glow-bottom),.6) !important;
+}
+#featurecards .featuretile::before,
+#featurecards .featuretile::after { display:none !important; }
+#homehero #drawerhandle { display:none !important; }
+
+/* Disney+'s mark and background share the newer, quieter teal-blue palette. */
+#servicegrid .service-card[data-brand="disney"] {
+  --card-bg:linear-gradient(145deg,#164a57,#092f3d);
+  --card-glow:rgba(15,61,75,.72);
+}
+#servicegrid .service-card[data-brand="disney"] .service-logo {
+  width:73%; height:67%; opacity:.93; filter:none;
+}
+
+/* Search follows the same light dotted canvas and compact tile rhythm as home. */
+#homekeyboard,
+#homekeyboard.open {
+  background:#fafbfc !important;
+  color:#171d24 !important;
+}
+#homekeyboard::before {
+  background-image:radial-gradient(circle,rgba(174,181,191,.48) 0 1.65px,transparent 2.2px);
+  background-size:2.717vw 4.82vh;
+  background-position:1.09vw .73vh;
+  filter:none;
+  opacity:.62;
+}
+#homekeyboard::after { content:none !important; }
+#homekeyboard .search-header {
+  left:3.8vw; right:3.8vw; top:3.5vh; height:6.4vh; gap:4vw;
+}
+#homekeyboard .search-back {
+  flex:0 0 31vw; width:31vw; height:6.2vh; padding:0 1.3vw;
+  border:1px solid rgba(169,178,188,.3);
+  border-radius:.9vh;
+  background:rgba(255,255,255,.86);
+  box-shadow:0 .4vh 1.1vh rgba(38,48,59,.09);
+  color:#626d79; font-size:1.08vw; font-weight:500;
+}
+#homekeyboard .search-back span { font-size:1.55vw; }
+#homekeyboard .search-back:hover,
+#homekeyboard .search-back.dfocus {
+  transform:none;
+  background:#fff;
+  color:#1f6bc3;
+  box-shadow:0 .45vh 1.5vh rgba(40,96,157,.15);
+}
+#homekeyboard .search-query {
+  height:6.4vh; padding:0;
+  border:0; border-bottom:1px solid rgba(94,110,126,.16);
+  border-radius:0; background:transparent;
+  box-shadow:none; color:#171d24;
+  font-size:1.8vw; font-weight:600;
+}
+#homekeyboard .search-query svg { display:none; }
+#homekeyboard .search-query-text.placeholder { color:#8b969f; font-size:1.4vw; font-weight:400; }
+#homekeyboard .search-main {
+  inset:13.6vh 3.8vw 3.5vh;
+  grid-template-columns:minmax(0,31vw) minmax(0,1fr);
+  gap:4vw;
+}
+#homekeyboard .search-left > .search-overline,
+#homekeyboard .search-results-heading,
+#homekeyboard .search-section-label { display:none; }
+#homekeyboard .search-keyboard {
+  margin-top:0;
+  grid-template-rows:repeat(7,5.7vh);
+  gap:.55vh .42vw;
+}
+#homekeyboard .search-key,
+#homekeyboard .search-key-wide {
+  height:5.7vh;
+  border:1px solid rgba(157,170,184,.32);
+  border-radius:.72vh;
+  background:rgba(255,255,255,.91);
+  box-shadow:0 .26vh .62vh rgba(38,48,60,.075);
+  color:#4a5562;
+  font-size:1.23vw;
+  font-weight:500;
+}
+#homekeyboard .search-key-wide {
+  background:rgba(241,244,247,.94);
+  font-size:1vw;
+}
+#homekeyboard .search-key:hover,
+#homekeyboard .search-key.dfocus {
+  background:#fff;
+  color:#1769be;
+  transform:scale(1.045);
+  box-shadow:0 .55vh 1.25vh rgba(24,78,133,.17);
+}
+#homekeyboard .search-suggestions { margin-top:2.8vh; }
+#homekeyboard .search-suggestion-list { margin-top:0; gap:.25vh; max-height:30vh; }
+#homekeyboard .search-suggestion {
+  min-height:4.0vh; padding:.32vh .55vw;
+  border-radius:.55vh; font-size:1.05vw; color:#505c68;
+}
+#homekeyboard .search-suggestion svg,
+#homekeyboard .search-suggestion-arrow { display:none; }
+#homekeyboard .search-suggestion:hover,
+#homekeyboard .search-suggestion.dfocus {
+  background:rgba(226,235,244,.87); transform:none;
+}
+#homekeyboard .search-results {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  column-gap:.95vw; row-gap:1.2vh;
+  padding:0 .6vw 2vh; margin:0 -.6vw;
+}
+#homekeyboard .search-result {
+  position:relative; isolation:isolate;
+  min-width:0; height:17.5vh;
+}
+#homekeyboard .search-result::before {
+  content:""; position:absolute; inset:.2vh; z-index:-1;
+  border-radius:1.7vh;
+  background-color:var(--art-bg);
+  background-image:var(--poster-url,none);
+  background-size:cover; background-position:center;
+  filter:blur(1.45vh); opacity:0; transform:scale(1);
+  transition:opacity .2s,transform .24s;
+}
+#homekeyboard .search-result:hover::before,
+#homekeyboard .search-result.dfocus::before { opacity:.73; transform:scale(1.08); }
+#homekeyboard .search-result-art {
+  width:100%; height:17.5vh;
+  border-radius:1.65vh;
+  background:var(--art-bg);
+  box-shadow:0 .55vh 1.2vh rgba(23,31,40,.19);
+}
+#homekeyboard .search-result-image {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center 30%;
+}
+#homekeyboard .search-result.has-image .search-result-art::after {
+  content:""; position:absolute; inset:40% 0 0;
+  background:linear-gradient(transparent,rgba(0,0,0,.64));
+}
+#homekeyboard .search-result.has-image .search-result-art strong,
+#homekeyboard .search-result.has-image .search-result-art small { display:none; }
+#homekeyboard .search-result-art strong {
+  font-size:1.45vw; color:var(--art-accent);
+}
+#homekeyboard .search-result-symbol { display:none; }
+#homekeyboard .search-result-name { display:none; }
+#homekeyboard .search-result.has-image .search-result-name {
+  display:block; position:absolute; left:.85vw; right:.85vw; bottom:1.25vh; z-index:1;
+  width:auto; height:auto; padding:0; overflow:hidden;
+  color:#fff; font-size:1.05vw; font-weight:600; text-shadow:0 .2vh .55vh rgba(0,0,0,.7);
+}
+#homekeyboard .search-result:hover .search-result-art,
+#homekeyboard .search-result.dfocus .search-result-art {
+  transform:scale(1.045);
+  box-shadow:0 .8vh 1.7vh rgba(27,37,49,.18);
+}
+#homekeyboard .search-credit {
+  display:block; flex:none; margin-top:.5vh; text-align:right;
+  color:#a6afb8; font-size:.7vw; text-decoration:none;
+}
+#homekeyboard .search-credit:hover { color:#6f8090; }
+#homekeyboard .search-detail-art {
+  background-size:cover; background-position:center;
+}
+
+
+/* The caret is baked into the reference image, so cover it with nearby clean artwork. */
+#homehero::after {
+  content:"";
+  position:absolute; z-index:1; pointer-events:none;
+  left:47.9vw; top:5.9vh; width:4.2vw; height:4.1vh;
+  background-image:url("../access/home-reference.png");
+  background-size:100vw 100vh;
+  background-position:-53.334vw -5.9vh;
+  background-repeat:no-repeat;
+  -webkit-mask-image:radial-gradient(ellipse,#000 62%,transparent 100%);
+  mask-image:radial-gradient(ellipse,#000 62%,transparent 100%);
+}
