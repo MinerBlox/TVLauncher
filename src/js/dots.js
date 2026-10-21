@@ -145,7 +145,7 @@
       context.clearRect(0, 0, state.width, state.height);
       state.dots.forEach(function (dot) {
         const age = phase - dot.delay;
-        const pulse = !still && age > 0 && age < 900 ? Math.sin(Math.PI * age / 900) : 0;
+        const pulse = !still && state.panel.id !== "homekeyboard" && age > 0 && age < 900 ? Math.sin(Math.PI * age / 900) : 0;
         context.beginPath();
         context.arc(dot.x, dot.y, 1.65 + pulse * 4.65, 0, Math.PI * 2);
         context.fillStyle = "rgba(133,143,160," + (.30 + pulse * .5).toFixed(3) + ")";
