@@ -1214,7 +1214,7 @@ body.home-query-present #appsearch { color:#323438 !important; }
 .service-card[data-brand="plex"] { --card-bg:#17191a; --mark:#e5a00d; --card-glow:rgba(229,160,13,.38); }
 .service-card[data-brand="spotify"] { --card-bg:#17211b; --mark:#1ed760; --card-glow:rgba(30,215,96,.39); }
 .service-card[data-brand="twitch"] { --card-bg:#6441a5; --card-glow:rgba(100,65,165,.45); }
-.service-card[data-brand="pluto"] { --card-bg:linear-gradient(130deg,#141319,#3c235b); --card-glow:rgba(108,53,166,.42); }
+.service-card[data-brand="appletv"] { --card-bg:linear-gradient(145deg,#27282b,#090a0b); --card-glow:rgba(20,20,22,.6); }
 .service-card[data-brand="crunchyroll"] { --card-bg:linear-gradient(135deg,#fb8d2e,#f05a22); --card-glow:rgba(245,114,32,.46); }
 .service-card[data-brand="rakuten"] { --card-bg:linear-gradient(135deg,#222b56,#10246f); --card-glow:rgba(63,83,190,.42); }
 .service-card[data-brand="discovery"] { --card-bg:linear-gradient(145deg,#1d2738,#084c84); --card-glow:rgba(21,116,191,.43); }
@@ -2366,10 +2366,10 @@ body.home-query-present #appsearch { color:#323438 !important; }
   --mark:#fff;
   --card-glow:rgba(16,41,100,.72);
 }
-#servicegrid .service-card[data-brand="pluto"] {
-  --card-bg:#16161d;
+#servicegrid .service-card[data-brand="appletv"] {
+  --card-bg:linear-gradient(145deg,#27282b,#090a0b);
   --mark:#fff;
-  --card-glow:rgba(22,22,29,.76);
+  --card-glow:rgba(20,20,22,.76);
 }
 #servicegrid .service-card[data-brand="hbomax"] .service-artwork svg,
 #servicegrid .service-card[data-brand="tubi"] .service-artwork svg {
@@ -2604,7 +2604,7 @@ body.home-query-present #appsearch { color:#323438 !important; }
 }
 #featurecards .next-row-peek > span[data-brand="itvx"] { --card-bg:linear-gradient(135deg,#17afda,#5629b9 55%,#f14989); }
 #featurecards .next-row-peek > span[data-brand="channel4"] { --card-bg:linear-gradient(135deg,#15191e,#3a414b); }
-#featurecards .next-row-peek > span[data-brand="hulu"] { --card-bg:#101a15; --mark:#1ce783; }
+#featurecards .next-row-peek > span[data-brand="appletv"] { --card-bg:linear-gradient(145deg,#27282b,#090a0b); }
 #featurecards .next-row-peek > span[data-brand="paramount"] { --card-bg:linear-gradient(140deg,#2584eb,#053d9e); }
 #featurecards .next-row-peek > span[data-brand="now"] { --card-bg:linear-gradient(130deg,#5627ad,#121025); }
 #featurecards .next-row-peek .service-artwork {

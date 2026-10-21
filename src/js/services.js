@@ -20,9 +20,10 @@
     { name:"Tubi", brand:"tubi", aliases:["Tubi"] },
     { name:"MUBI", brand:"mubi", aliases:["MUBI"] },
     { name:"Rakuten TV", brand:"rakuten", aliases:["Rakuten TV","LG Movies & TV"] },
-    { name:"Pluto TV", brand:"pluto", wordmark:"pluto tv", aliases:["Pluto TV"] }
+    { name:"Apple TV", brand:"appletv", asset:"appletv.svg", aliases:["Apple TV","Apple TV+"] }
   ];
   const featuredBrands = ["netflix", "disney", "youtube", "iplayer", "prime"];
+  const secondRowBrands = ["appletv", "now", "channel4", "itvx", "paramount"];
   const homeCards = featuredBrands.map(function (brand) {
     return services.find(function (service) { return service.brand === brand; });
   });
@@ -58,10 +59,11 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toast.classList.remove("visible"); }, 3000);
   }
-  const gridCards = featuredBrands.map(function (brand) {
+  const gridOrder = featuredBrands.concat(secondRowBrands);
+  const gridCards = gridOrder.map(function (brand) {
     return services.find(function (service) { return service.brand === brand; });
   }).concat(services.filter(function (service) {
-    return featuredBrands.indexOf(service.brand) === -1;
+    return gridOrder.indexOf(service.brand) === -1;
   }));
   gridCards.forEach(function (item, index) {
     const homeCard = false;
@@ -90,7 +92,8 @@
       artwork.appendChild(logo);
     } else if (brandPaths[item.brand]) {
       const logo = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      logo.setAttribute("viewBox", item.brand === "hbomax" || item.brand === "tubi" ? "0 7 24 10" : "0 0 24 24");
+      const croppedWordmarks = { itvx:"0 7 24 10", now:"0 8 24 8", hbomax:"0 7 24 10", tubi:"0 7 24 10" };
+      logo.setAttribute("viewBox", croppedWordmarks[item.brand] || "0 0 24 24");
       logo.setAttribute("aria-hidden", "true");
       brandPaths[item.brand].forEach(function (shape) {
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");

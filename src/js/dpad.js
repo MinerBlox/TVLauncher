@@ -399,16 +399,6 @@ function onkey(event) {
 		activate(dpadfocus);
 		return;
 	}
-	if((code===KEY_DOWN || code===KEY_UP) && contextname()==="homekeyboard"){
-		const detail=document.querySelector("#homekeyboard .search-detail.open");
-		if(detail && dpadfocus.classList.contains("search-provider")){
-			const providers=Array.from(detail.querySelectorAll(".search-provider"));
-			const current=providers.indexOf(dpadfocus);
-			const next=providers[current+(code===KEY_DOWN?1:-1)];
-			if(next){ setfocus(next); return; }
-			if(code===KEY_DOWN){ return; }
-		}
-	}
 	if(code===KEY_DOWN && contextname()==="homekeyboard"){
 		const searchPanel=document.getElementById("homekeyboard");
 		if(searchPanel && !searchPanel.querySelector(".search-detail.open, .search-setup.open")){
