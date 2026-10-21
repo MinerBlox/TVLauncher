@@ -113,12 +113,17 @@
     panelState.canvas.height = Math.round(panelState.height * pixelRatio);
     panelState.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     panelState.dots = [];
+    if (panelState.width <= 0 || panelState.height <= 0) return;
     const stepX = panelState.width * .02717;
     const stepY = panelState.height * .0482;
     const startX = panelState.width * .024485;
     const startY = panelState.height * .0314;
-    for (let col = 0, x = startX; x < panelState.width + 2; col++, x += stepX) {
-      for (let row = 0, y = startY; y < panelState.height + 2; row++, y += stepY) {
+    for (let col = 0; col < 40; col++) {
+      const x = startX + col * stepX;
+      if (x > panelState.width + 2) break;
+      for (let row = 0; row < 22; row++) {
+        const y = startY + row * stepY;
+        if (y > panelState.height + 2) break;
         panelState.dots.push({ x:x, y:y, delay:2200 + col * 76 + (row % 4) * 45 });
       }
     }
@@ -134,6 +139,8 @@
     const phase = (now - started) % 9000;
     panels.forEach(function (state) {
       if (!state.panel.classList.contains("open")) return;
+      if (!state.dots.length) resize(state);
+      if (!state.dots.length) return;
       const context = state.context;
       context.clearRect(0, 0, state.width, state.height);
       state.dots.forEach(function (dot) {
