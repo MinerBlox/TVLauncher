@@ -56,8 +56,14 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toast.classList.remove("visible"); }, 3000);
   }
-  homeCards.concat(services).forEach(function (item, index) {
-    const homeCard = index < 5;
+  const featuredBrands = ["netflix", "disney", "youtube", "iplayer"];
+  const gridCards = featuredBrands.map(function (brand) {
+    return services.find(function (service) { return service.brand === brand; });
+  }).concat(homeCards, services.filter(function (service) {
+    return featuredBrands.indexOf(service.brand) === -1;
+  }));
+  gridCards.forEach(function (item, index) {
+    const homeCard = !!item.crop;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "service-card" + (homeCard ? " home-card" : "");
@@ -106,7 +112,7 @@
       return;
     }
     openServiceGrid();
-    if (typeof setfocus === "function") setfocus(list.children[index]);
+    if (typeof setfocus === "function") setfocus(list.querySelector('[data-brand="' + item.brand + '"]'));
     showToast(item.name + " was not found in this launcher\u0027s app list");
   };
   window.serviceGridIsOpen = function () { return layer.classList.contains("open"); };
