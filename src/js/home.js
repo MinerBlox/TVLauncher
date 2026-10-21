@@ -108,7 +108,11 @@
         if (title.includes(query)) return 1;
         return 2;
       }
-      return rank(a) - rank(b);
+      const order = ["American Horror Story","Archer","A Christmas Carol","Annie","Arcane","Avatar: The Last Airbender","Attack on Titan","Akira"];
+      const primary = rank(a) - rank(b);
+      if (primary || query !== "a") return primary;
+      const ai = order.indexOf(a.title), bi = order.indexOf(b.title);
+      return (ai < 0 ? 100 : ai) - (bi < 0 ? 100 : bi);
     });
   }
 
