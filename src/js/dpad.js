@@ -89,8 +89,10 @@ function contextelements() {
 	if(typeof serviceGridIsOpen==="function" && serviceGridIsOpen()){ return within(document.getElementById("servicegrid"),".service-card"); }
 	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){
 		const searchPanel=document.getElementById("homekeyboard");
+		const searchSetup=searchPanel.querySelector(".search-setup.open");
+		if(searchSetup){ return within(searchSetup,"button,input"); }
 		const searchDetail=searchPanel.querySelector(".search-detail.open");
-		return within(searchDetail || searchPanel,"button");
+		return within(searchDetail || searchPanel,"button,a");
 	}
 	if(renameopen()){ return within(renamebox,"button, input"); }
 	if(folderpickeropen()){ return within(folderpicker,"button, input"); }
@@ -273,7 +275,13 @@ function handleback() {
 		return;
 	}
 	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){
-		if(document.querySelector("#homekeyboard .search-detail.open") && typeof closeSearchDetail==="function") closeSearchDetail();
+		if(typeof homeSearchSetupIsOpen==="function" && homeSearchSetupIsOpen()){
+			if(istyping()){
+				document.activeElement.blur();
+				setfocus(document.querySelector("#homekeyboard .search-setup-save"));
+			} else if(typeof closeSearchSetup==="function") closeSearchSetup();
+		}
+		else if(document.querySelector("#homekeyboard .search-detail.open") && typeof closeSearchDetail==="function") closeSearchDetail();
 		else closeHomeKeyboard();
 		return;
 	}
