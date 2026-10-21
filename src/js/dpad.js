@@ -87,7 +87,11 @@ function contextname() {
 
 function contextelements() {
 	if(typeof serviceGridIsOpen==="function" && serviceGridIsOpen()){ return within(document.getElementById("servicegrid"),".service-card"); }
-	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){ return within(document.getElementById("homekeyboard"),"button"); }
+	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){
+		const searchPanel=document.getElementById("homekeyboard");
+		const searchDetail=searchPanel.querySelector(".search-detail.open");
+		return within(searchDetail || searchPanel,"button");
+	}
 	if(renameopen()){ return within(renamebox,"button, input"); }
 	if(folderpickeropen()){ return within(folderpicker,"button, input"); }
 	if(appmenuopen()){ return within(appmenu,"button"); }
@@ -101,7 +105,7 @@ function contextelements() {
 
 // ---- focus
 function reveal(el) {
-	[appluncher,settingspane,folderpicker].forEach((scroller) => {
+	[appluncher,settingspane,folderpicker,document.querySelector("#homekeyboard .search-results"),document.querySelector("#homekeyboard .search-suggestion-list")].filter(Boolean).forEach((scroller) => {
 		if(!scroller.contains(el)){ return; }
 		const box=scroller.getBoundingClientRect();
 		const rect=el.getBoundingClientRect();
@@ -269,7 +273,8 @@ function handleback() {
 		return;
 	}
 	if(typeof homeKeyboardIsOpen==="function" && homeKeyboardIsOpen()){
-		closeHomeKeyboard();
+		if(document.querySelector("#homekeyboard .search-detail.open") && typeof closeSearchDetail==="function") closeSearchDetail();
+		else closeHomeKeyboard();
 		return;
 	}
 	if(istyping()){
