@@ -1,11 +1,11 @@
 // Full-screen streaming shelf. The first row reuses the five home artworks.
 (function () {
   const homeCards = [
-    { name:"Apple TV", brand:"appletv", crop:"-9.33vw" },
-    { name:"Arcade", brand:"arcade", crop:"-27.09vw" },
-    { name:"Fitness", brand:"fitness", crop:"-42.94vw" },
-    { name:"Music", brand:"music", crop:"-58.85vw" },
-    { name:"App Store", brand:"appstore", crop:"-74.88vw" }
+    { name:"Apple TV", brand:"appletv", crop:"-9.33vw", aliases:["Apple TV","Apple TV+"] },
+    { name:"Arcade", brand:"arcade", crop:"-27.09vw", aliases:["Apple Arcade","Arcade"] },
+    { name:"Fitness", brand:"fitness", crop:"-42.94vw", aliases:["Apple Fitness","Fitness+"] },
+    { name:"Music", brand:"music", crop:"-58.85vw", aliases:["Apple Music"] },
+    { name:"App Store", brand:"appstore", crop:"-74.88vw", aliases:["Content Store","LG Content Store","App Store"] }
   ];
   const services = [
     { name:"Netflix", brand:"netflix", aliases:["netflix"] },
@@ -42,10 +42,11 @@
     return applist.find(function (app) {
       const name = normalized(app.title);
       const display = normalized(typeof appdisplayname === "function" ? appdisplayname(app) : app.title);
+      const id = normalized(app.id);
       return service.aliases.some(function (alias) {
         const target = normalized(alias);
         return target.length < 5 ? name === target || display === target :
-          name.indexOf(target) !== -1 || display.indexOf(target) !== -1;
+          name.indexOf(target) !== -1 || display.indexOf(target) !== -1 || id.indexOf(target) !== -1;
       });
     }) || null;
   }
@@ -88,19 +89,26 @@
     }
     button.appendChild(artwork);
     button.addEventListener("click", function () {
-      if (homeCard) {
-        closeServiceGrid();
-        const tile = document.querySelectorAll("#featurecards .featuretile")[index];
-        if (tile) tile.click();
-        return;
-      }
       const app = findInstalled(item);
-      if (!app) { showToast(item.name + " is not installed on this TV"); return; }
+      if (!app) { showToast(item.name + " was not found in this launcher\u0027s app list"); return; }
       if (typeof recordrecent === "function") recordrecent(app.id);
       if (typeof launchapp === "function") launchapp(app.id);
     });
     list.appendChild(button);
   });
+  window.activateHomeCard = function (index) {
+    const item = homeCards[index];
+    if (!item) return;
+    const app = findInstalled(item);
+    if (app) {
+      if (typeof recordrecent === "function") recordrecent(app.id);
+      if (typeof launchapp === "function") launchapp(app.id);
+      return;
+    }
+    openServiceGrid();
+    if (typeof setfocus === "function") setfocus(list.children[index]);
+    showToast(item.name + " was not found in this launcher\u0027s app list");
+  };
   window.serviceGridIsOpen = function () { return layer.classList.contains("open"); };
   window.serviceGridAtTopRow = function () {
     const focused = typeof dpadfocus !== "undefined" ? dpadfocus : null;
