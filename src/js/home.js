@@ -581,7 +581,8 @@
     return availabilityInFlight[key];
   }
   function priceLabel(value) {
-    if (typeof value !== "number" || !Number.isFinite(value)) return "";
+    value = Number(value);
+    if (!Number.isFinite(value)) return "";
     try { return new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(value); }
     catch (error) { return "£" + value.toFixed(2); }
   }
@@ -591,6 +592,7 @@
     container.innerHTML = "";
     if (!sources.length) {
       status.textContent = "No UK streaming, rental or purchase options are currently listed for this title.";
+      if (typeof setfocus === "function") setfocus(detail.querySelector(".search-detail-back"));
       return;
     }
     const groups = [
@@ -608,29 +610,45 @@
       section.innerHTML = "<h3>" + group[0] + "</h3>";
       const list = document.createElement("div");
       list.className = "search-provider-entries";
-      matches.sort(function (a,b) { return String(a.name).localeCompare(String(b.name)); }).forEach(function (source) {
-        const url = typeof source.web_url === "string" && /^https?:\/\//i.test(source.web_url) ? source.web_url : "";
-        const entry = document.createElement(url ? "a" : "div");
+      const services = new Map();
+      matches.forEach(function (source) {
+        const key = source.source_id != null ? String(source.source_id) : String(source.name || "Unknown service").trim().toLocaleLowerCase();
+        if (!services.has(key)) services.set(key,{name:source.name || "Unknown service",url:"",formats:new Set(),prices:[],seasons:0});
+        const service = services.get(key);
+        if (!service.url && typeof source.web_url === "string" && /^https?:\/\//i.test(source.web_url)) service.url = source.web_url;
+        if (source.format) service.formats.add(String(source.format).toUpperCase().replace(/^UHD$/, "4K"));
+        if (source.price !== null && source.price !== undefined && source.price !== "" && Number.isFinite(Number(source.price))) service.prices.push(Number(source.price));
+        if (Number.isFinite(Number(source.seasons))) service.seasons = Math.max(service.seasons,Number(source.seasons));
+      });
+      Array.from(services.values()).sort(function (a,b) { return a.name.localeCompare(b.name); }).forEach(function (service) {
+        const entry = document.createElement(service.url ? "a" : "button");
         entry.className = "search-provider";
-        if (url) {
-          entry.href = url;
+        if (service.url) {
+          entry.href = service.url;
           entry.target = "_blank";
           entry.rel = "noopener noreferrer";
-        }
+        } else entry.type = "button";
         const name = document.createElement("strong");
-        name.textContent = source.name || "Unknown service";
+        name.textContent = service.name;
         entry.appendChild(name);
-        const facts = [];
-        if (source.format) facts.push(String(source.format).toUpperCase());
-        if ((group[1] === "rent" || group[1] === "buy") && priceLabel(source.price)) facts.push(priceLabel(source.price));
-        if (Number.isFinite(Number(source.seasons)) && Number(source.seasons) > 0) {
-          facts.push(source.seasons + (Number(source.seasons) === 1 ? " season" : " seasons"));
-        }
+        const facts = Array.from(service.formats).sort(function (a,b) {
+          const order = ["SD","HD","4K"];
+          const left = order.indexOf(a), right = order.indexOf(b);
+          return (left < 0 ? 99 : left) - (right < 0 ? 99 : right) || a.localeCompare(b);
+        });
+        if (service.seasons > 0) facts.push(service.seasons + (service.seasons === 1 ? " season" : " seasons"));
         if (facts.length) {
           const info = document.createElement("span");
           info.className = "search-provider-facts";
           info.textContent = facts.join(" · ");
           entry.appendChild(info);
+        }
+        if ((group[1] === "rent" || group[1] === "buy") && service.prices.length) {
+          const low = Math.min.apply(null,service.prices), high = Math.max.apply(null,service.prices);
+          const price = document.createElement("span");
+          price.className = "search-provider-price";
+          price.textContent = priceLabel(low) + (high > low ? " – " + priceLabel(high) : "");
+          entry.appendChild(price);
         }
         list.appendChild(entry);
       });
@@ -638,19 +656,24 @@
       container.appendChild(section);
     });
     status.textContent = "";
+    if (typeof setfocus === "function") setfocus(container.querySelector(".search-provider"));
   }
   function loadProviders(item,sequence) {
     const status = detail.querySelector(".search-provider-status");
     if (!watchmodeToken) {
       status.innerHTML = 'Add a Watchmode API key to see live UK sources and prices. <button type="button" class="search-detail-connect">Configure keys</button>';
       status.querySelector("button").addEventListener("click",openSetup);
+      if (typeof setfocus === "function") setfocus(status.querySelector("button"));
       return;
     }
     status.textContent = "Checking UK availability…";
     getAvailability(item,sequence).then(function (sources) {
       if (sequence === detailSequence && detail.classList.contains("open")) showProviders(sources);
     }).catch(function (error) {
-      if (sequence === detailSequence) status.textContent = error.message || "Availability could not be loaded.";
+      if (sequence === detailSequence) {
+        status.textContent = error.message || "Availability could not be loaded.";
+        if (typeof setfocus === "function") setfocus(detail.querySelector(".search-detail-back"));
+      }
     });
   }
   function showDetail(item) {
@@ -661,7 +684,7 @@
       escapeHtml(item.type) + ' · ' + escapeHtml(item.year) + '</span><h2>' + escapeHtml(item.title) +
       '</h2><p class="search-detail-metadata">' + itemMeta(item) +
       '</p><h3 class="search-provider-title">Where to watch in the UK</h3><div class="search-provider-status"></div>' +
-      '<div class="search-provider-list"></div><p class="search-detail-attribution">Availability by Watchmode · Prices and services may change.</p></div>';
+      '<div class="search-provider-scroll"><div class="search-provider-list"></div><p class="search-detail-attribution">Availability by Watchmode · Prices and services may change.</p></div></div>';
     if (item.imageFull) detail.querySelector(".search-detail-art").style.backgroundImage =
       'linear-gradient(180deg,transparent,rgba(0,0,0,.4)),url("' + item.imageFull.replace(/"/g,"%22") + '")';
     detail.classList.add("open");
@@ -677,8 +700,8 @@
         if (sequence === detailSequence) detail.querySelector(".search-detail-metadata").innerHTML = itemMeta(item);
       }).catch(function () {});
     }
+    if (typeof setfocus === "function") setfocus(null);
     loadProviders(item,sequence);
-    if (typeof setfocus === "function") setfocus(detail.querySelector(".search-detail-back"));
   }
   function closeDetail() {
     ++detailSequence;

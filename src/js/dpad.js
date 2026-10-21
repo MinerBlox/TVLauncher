@@ -107,11 +107,11 @@ function contextelements() {
 
 // ---- focus
 function reveal(el) {
-	[appluncher,settingspane,folderpicker,document.querySelector("#homekeyboard .search-results"),document.querySelector("#homekeyboard .search-suggestion-list"),document.querySelector("#homekeyboard .search-detail-copy")].filter(Boolean).forEach((scroller) => {
+	[appluncher,settingspane,folderpicker,document.querySelector("#homekeyboard .search-results"),document.querySelector("#homekeyboard .search-suggestion-list"),document.querySelector("#homekeyboard .search-detail.open .search-provider-scroll")].filter(Boolean).forEach((scroller) => {
 		if(!scroller.contains(el)){ return; }
 		const box=scroller.getBoundingClientRect();
 		const rect=el.getBoundingClientRect();
-		const margin=box.height*0.05;
+		const margin=scroller.classList.contains("search-provider-scroll")?0:box.height*0.05;
 		if(rect.top<box.top+margin){ scroller.scrollTop-=box.top+margin-rect.top; }
 		else if(rect.bottom>box.bottom-margin){ scroller.scrollTop+=rect.bottom-(box.bottom-margin); }
 	});
@@ -400,17 +400,13 @@ function onkey(event) {
 		return;
 	}
 	if((code===KEY_DOWN || code===KEY_UP) && contextname()==="homekeyboard"){
-		const copy=document.querySelector("#homekeyboard .search-detail.open .search-detail-copy");
-		if(copy){
-			const limit=Math.max(0,copy.scrollHeight-copy.clientHeight);
-			const saved=Number(copy.dataset.remoteScrollTarget);
-			const target=Number.isFinite(saved)?saved:copy.scrollTop;
-			const next=Math.max(0,Math.min(limit,target+(code===KEY_DOWN?1:-1)*Math.max(120,copy.clientHeight*.52)));
-			if(Math.abs(next-target)>1){
-				copy.dataset.remoteScrollTarget=String(next);
-				copy.scrollTop=next;
-				return;
-			}
+		const detail=document.querySelector("#homekeyboard .search-detail.open");
+		if(detail && dpadfocus.classList.contains("search-provider")){
+			const providers=Array.from(detail.querySelectorAll(".search-provider"));
+			const current=providers.indexOf(dpadfocus);
+			const next=providers[current+(code===KEY_DOWN?1:-1)];
+			if(next){ setfocus(next); return; }
+			if(code===KEY_DOWN){ return; }
 		}
 	}
 	if(code===KEY_DOWN && contextname()==="homekeyboard"){

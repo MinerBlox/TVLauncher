@@ -2784,6 +2784,77 @@ body.home-query-present #appsearch { color:#323438 !important; }
 #homekeyboard .search-result:focus-visible .search-result-art {
   filter:brightness(1.07);
 }
+
+/* Keep the selected title in place; only the list of offers moves. */
+#homekeyboard .search-detail-copy {
+  display:flex;
+  flex-direction:column;
+  height:75vh;
+  max-height:75vh;
+  overflow:hidden;
+  padding-right:0;
+  scrollbar-width:none;
+}
+#homekeyboard .search-detail-copy > :not(.search-provider-scroll) { flex:none; }
+#homekeyboard .search-provider-scroll {
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:0 1.1vw .4vh 0;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(112,131,151,.56) rgba(212,222,231,.28);
+}
+#homekeyboard .search-provider-scroll::-webkit-scrollbar { width:.55vw; }
+#homekeyboard .search-provider-scroll::-webkit-scrollbar-track {
+  border-radius:999px;
+  background:rgba(212,222,231,.28);
+}
+#homekeyboard .search-provider-scroll::-webkit-scrollbar-thumb {
+  border:2px solid transparent;
+  border-radius:999px;
+  background:linear-gradient(#aab9c9,#7e93a8) padding-box;
+}
+#homekeyboard .search-provider { font:inherit; cursor:pointer; }
+#homekeyboard .search-provider-price {
+  color:#465460;
+  font-size:.84vw;
+  font-weight:700;
+}
+#homekeyboard .search-provider:hover,
+#homekeyboard .search-provider.dfocus {
+  border-color:#647381;
+  background:#fff;
+  box-shadow:0 .4vh 1.2vh rgba(32,47,60,.1);
+}
+
+/* Full-size second-row cards, cropped only by the TV viewport. */
+#featurecards .next-row-peek > span {
+  overflow:visible;
+  background:transparent !important;
+  box-shadow:none;
+}
+#featurecards .next-row-peek .service-artwork {
+  display:flex;
+  width:100%;
+  height:16.6vh;
+  padding:0;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:2.5vh;
+  background:var(--card-bg,#1b2532) !important;
+  color:var(--mark,#fff);
+  box-shadow:0 .7vh 1.5vh rgba(25,36,51,.17);
+}
+#featurecards .next-row-peek .service-artwork svg {
+  width:7.4vw;
+  height:9.8vh;
+}
+#featurecards .next-row-peek .service-artwork .service-logo {
+  width:80%;
+  height:72%;
+}
 @media (prefers-reduced-motion:reduce) {
   #homekeyboard .search-result:hover,
   #homekeyboard .search-result.dfocus,
