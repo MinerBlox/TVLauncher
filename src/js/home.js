@@ -2,6 +2,7 @@
 (function () {
   const search = document.getElementById("appsearch");
   const drawer = document.getElementById("drawerhandle");
+  const toggle = document.getElementById("realappbarbtu");
   const panel = document.createElement("section");
   panel.id = "homekeyboard";
   panel.setAttribute("role", "dialog");
@@ -143,17 +144,29 @@
     });
     if (!unique.length) suggestions.innerHTML = '<div class="search-no-suggestions">No suggestions yet</div>';
   }
+  function filterApps() {
+    const query = normalized(search.value);
+    document.querySelectorAll("#appluncher .appitem").forEach(function (tile) {
+      const name = tile.querySelector(".appname");
+      tile.style.display = !query || (name && normalized(name.textContent).includes(query)) ? "" : "none";
+    });
+  }
+  function openDrawer() {
+    closeHomeKeyboard(false);
+    toggle.checked = true;
+    toggle.dispatchEvent(new Event("change", { bubbles:true }));
+    filterApps();
+    if (typeof settle === "function") settle();
+  }
   function showDetail(item) {
     detail.innerHTML = '<button type="button" class="search-detail-back" aria-label="Back to results">← Back to results</button><div class="search-detail-art" style="--art-bg:' + item.bg + ';--art-accent:' + item.accent + '"><span>' + item.art + '</span></div><div class="search-detail-copy"><span class="search-overline">' + item.type + ' · ' + item.year + '</span><h2>' + escapeHtml(item.title) + '</h2><p>' + item.genres.map(escapeHtml).join(" · ") + '</p><button type="button" class="search-detail-search">Browse apps <span aria-hidden="true">↗</span></button></div>';
     detail.classList.add("open");
     detail.setAttribute("aria-hidden", "false");
     detail.querySelector(".search-detail-back").addEventListener("click", closeDetail);
     detail.querySelector(".search-detail-search").addEventListener("click", function () {
-      search.value = item.title;
-      closeHomeKeyboard(false);
-      document.getElementById("realappbarbtu").checked = true;
-      document.getElementById("realappbarbtu").dispatchEvent(new Event("change", { bubbles: true }));
-      if (typeof settle === "function") settle();
+      search.value = "";
+      render();
+      openDrawer();
     });
     if (typeof setfocus === "function") setfocus(detail.querySelector(".search-detail-back"));
   }
@@ -203,15 +216,14 @@
   document.querySelectorAll("#featurecards .featuretile").forEach(function (tile) {
     tile.addEventListener("click", function () {
       search.value = tile.getAttribute("data-search") || "";
-      openHomeKeyboard();
+      render();
+      openDrawer();
     });
   });
   drawer.addEventListener("click", function () {
     search.value = "";
-    document.body.classList.remove("home-query-present");
-    document.getElementById("realappbarbtu").checked = true;
-    document.getElementById("realappbarbtu").dispatchEvent(new Event("change", { bubbles: true }));
-    if (typeof settle === "function") settle();
+    render();
+    openDrawer();
   });
   window.addEventListener("keydown", function (event) {
     if (!homeKeyboardIsOpen()) return;
