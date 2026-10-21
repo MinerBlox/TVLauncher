@@ -25,8 +25,9 @@
     context.setTransform(scale, 0, 0, scale, 0, 0);
   }
   function obscured(x, y) {
-    // These areas contain lettering, the search pill, arrow and dock baked into the reference.
-    return (x > 360 && x < 1310 && y > 326 && y < 490) ||
+    // Keep the wave behind controls while allowing dots beside the greeting to pulse.
+    return (x > 585 && x < 1090 && y > 326 && y < 375) ||
+      (x > 385 && x < 1290 && y > 389 && y < 468) ||
       (x > 120 && x < 1550 && y > 643) ||
       (x > 785 && x < 885 && y > 53 && y < 97);
   }

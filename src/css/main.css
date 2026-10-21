@@ -2552,6 +2552,86 @@ body.home-query-present #appsearch { color:#323438 !important; }
 #featurecards .next-row-peek span:nth-child(4) { background:linear-gradient(135deg,#00ddb0,#00b7a9); }
 #featurecards .next-row-peek span:nth-child(5) { background:linear-gradient(135deg,#bf6bf4,#a52be9); }
 
+/* Replace the baked greeting with a dot-aligned, text-free crop of its own
+   photograph. The original word must never show through a shorter verb. */
+#homehero .home-title-cleanup {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:url("../access/home-reference.png") 0 14.45vh / 100% 100% no-repeat;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 31.8vh,#000 33.4vh,#000 39.6vh,transparent 41.2vh);
+  mask-image:linear-gradient(to bottom,transparent 31.8vh,#000 33.4vh,#000 39.6vh,transparent 41.2vh);
+}
+#home-dot-pulse { z-index:2; }
+#homehero h1 {
+  z-index:3;
+  background:none !important;
+}
+#homehero #homesearch { z-index:4; }
+
+/* A softly lit glass dock over the continuous dotted background. */
+#featurecards::before {
+  top:59vh;
+  background-color:transparent;
+  background-image:linear-gradient(to bottom,
+    rgba(250,251,252,0) 0,
+    rgba(250,251,252,.15) 4vh,
+    rgba(250,251,252,.48) 8vh,
+    rgba(250,251,252,.85) 12vh,
+    #fafbfc 17vh);
+}
+#featurecards::after {
+  border:1px solid rgba(255,255,255,.45);
+  background:linear-gradient(145deg,rgba(255,255,255,.23),rgba(255,255,255,.055) 52%,rgba(255,255,255,.17));
+  -webkit-backdrop-filter:blur(8px) saturate(1.8) brightness(1.15) contrast(1.05);
+  backdrop-filter:blur(8px) saturate(1.8) brightness(1.15) contrast(1.05);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),
+             inset 1.5px 1.5px 0 rgba(255,255,255,.58),
+             inset 0 0 1.3vh rgba(255,255,255,.3),
+             0 1.1vh 3.4vh rgba(45,53,62,.17);
+}
+
+/* The visible second-row cards use the very same bundled marks as the shelf. */
+#featurecards .next-row-peek { top:91vh; }
+#featurecards .next-row-peek > span {
+  display:block;
+  height:16.6vh;
+  overflow:hidden;
+  border-radius:2.5vh;
+  background:var(--card-bg) !important;
+  color:var(--mark,#fff);
+}
+#featurecards .next-row-peek > span[data-brand="itvx"] { --card-bg:linear-gradient(135deg,#17afda,#5629b9 55%,#f14989); }
+#featurecards .next-row-peek > span[data-brand="channel4"] { --card-bg:linear-gradient(135deg,#15191e,#3a414b); }
+#featurecards .next-row-peek > span[data-brand="hulu"] { --card-bg:#101a15; --mark:#1ce783; }
+#featurecards .next-row-peek > span[data-brand="paramount"] { --card-bg:linear-gradient(140deg,#2584eb,#053d9e); }
+#featurecards .next-row-peek > span[data-brand="now"] { --card-bg:linear-gradient(130deg,#5627ad,#121025); }
+#featurecards .next-row-peek .service-artwork {
+  width:100%;
+  height:100%;
+  box-sizing:border-box;
+  padding-top:1.4vh;
+  flex:none;
+  align-items:flex-start;
+  border-radius:inherit;
+  background:transparent !important;
+  color:inherit;
+  box-shadow:none;
+}
+#featurecards .next-row-peek .service-artwork::after { content:none; }
+#featurecards .next-row-peek .service-artwork svg {
+  width:7.4vw;
+  height:7vh;
+  max-height:none;
+  fill:currentColor;
+}
+#featurecards .next-row-peek .service-artwork .service-logo {
+  width:74%;
+  height:7vh;
+  object-fit:contain;
+}
+
 /* A reliable TV-browser transition from the home search pill to the search view. */
 #homekeyboard {
   opacity:0 !important;

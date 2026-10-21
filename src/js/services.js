@@ -108,6 +108,11 @@
     });
     list.appendChild(button);
   });
+  document.querySelectorAll("#featurecards .next-row-peek > span").forEach(function (peek) {
+    const card = list.querySelector('.service-card[data-brand="' + peek.dataset.brand + '"]');
+    const artwork = card && card.querySelector(".service-artwork");
+    if (artwork) peek.appendChild(artwork.cloneNode(true));
+  });
   window.activateHomeCard = function (index) {
     const item = homeCards[index];
     if (!item) return;

@@ -122,18 +122,14 @@
       "&query=" + encodeURIComponent(query)
       : "/trending/all/week?language=en-GB&page=" + page;
   }
-  function interleave(tv,movies) {
+  function sortByPopularity(tv,movies) {
     const combined = [];
     const seen = Object.create(null);
-    const count = Math.max(tv.length,movies.length);
-    for (let index = 0; index < count; index++) {
-      [tv[index],movies[index]].forEach(function (item) {
-        if (!item) return;
-        const key = item.tmdbMedia + ":" + item.tmdbId;
-        if (!seen[key]) { seen[key] = true; combined.push(item); }
-      });
-    }
-    return combined;
+    tv.concat(movies).forEach(function (item) {
+      const key = item.tmdbMedia + ":" + item.tmdbId;
+      if (!seen[key]) { seen[key] = true; combined.push(item); }
+    });
+    return combined.sort(function (a,b) { return b.popularity - a.popularity; });
   }
   function preloadArtwork(items) {
     return Promise.all(items.map(function (item) {
@@ -160,7 +156,7 @@
   }
   function fetchSearchPage(query,page,signal) {
     if (!query) return tmdbGet(tmdbSearchPath("", "",page),undefined,signal).then(function (data) {
-      return {items:(data.results || []).map(mapTmdb).filter(Boolean),
+      return {items:(data.results || []).map(mapTmdb).filter(Boolean).sort(function (a,b) { return b.popularity - a.popularity; }),
         pages:{tv:page,movie:page}, totals:{tv:data.total_pages || 0,movie:data.total_pages || 0}};
     });
     return Promise.all(["tv","movie"].map(function (media) {
@@ -169,7 +165,7 @@
     })).then(function (payloads) {
       const tv = (payloads[0].results || []).map(function (raw) { return mapTmdb(Object.assign({},raw,{media_type:"tv"})); }).filter(Boolean);
       const movies = (payloads[1].results || []).map(function (raw) { return mapTmdb(Object.assign({},raw,{media_type:"movie"})); }).filter(Boolean);
-      return {items:interleave(tv,movies),pages:{tv:page,movie:page},
+      return {items:sortByPopularity(tv,movies),pages:{tv:page,movie:page},
         totals:{tv:payloads[0].total_pages || 0,movie:payloads[1].total_pages || 0}};
     });
   }
@@ -192,6 +188,7 @@
       poster:poster,
       tmdbId:Number(raw.id),
       tmdbMedia:raw.media_type,
+      popularity:Number(raw.popularity) || 0,
       seasons:null,
       episodes:null
     };
@@ -277,6 +274,7 @@
   }
   function render() {
     const query = normalized(search.value);
+    panel.classList.toggle("search-loading",!!tmdbToken && (searchPending || loadedQuery !== query));
     queryText.textContent = search.value || "Search for a movie or TV show...";
     queryText.classList.toggle("placeholder",!search.value);
     document.body.classList.toggle("home-query-present",!!search.value);

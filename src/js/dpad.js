@@ -399,6 +399,17 @@ function onkey(event) {
 		activate(dpadfocus);
 		return;
 	}
+	if(code===KEY_DOWN && contextname()==="homekeyboard"){
+		const searchPanel=document.getElementById("homekeyboard");
+		if(searchPanel && !searchPanel.querySelector(".search-detail.open, .search-setup.open")){
+			const keys=Array.from(searchPanel.querySelectorAll(".search-keyboard .search-key"));
+			if(keys.indexOf(dpadfocus)>=keys.length-6){
+				const suggestion=searchPanel.querySelector(".search-suggestion-list .search-suggestion");
+				if(suggestion){ setfocus(suggestion); return; }
+				if(searchPanel.classList.contains("search-loading")){ return; }
+			}
+		}
+	}
 	if(dpadfocus.tagName==="INPUT" && dpadfocus.type==="range" && (code===KEY_LEFT || code===KEY_RIGHT)){
 		const number=(name,fallback) => {
 			const value=parseFloat(dpadfocus.getAttribute(name));
