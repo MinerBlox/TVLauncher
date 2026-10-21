@@ -48,7 +48,7 @@
       key.type = "button";
       key.className = "search-key" + (rowIndex === 0 ? " search-key-wide" : "");
       key.dataset.key = value;
-      key.innerHTML = value === "space" ? '<span class="search-space-symbol" aria-hidden="true">␣</span>' : value === "delete" ? '<span class="search-delete-symbol" aria-hidden="true">⌫</span>' : value;
+      key.innerHTML = value === "space" ? '<svg class="search-space-symbol" viewBox="0 0 240 54" aria-hidden="true" focusable="false"><path d="M20 9 V42 Q20 44 23 44 H217 Q220 44 220 42 V9"></path></svg>' : value === "delete" ? '<span class="search-delete-symbol" aria-hidden="true">⌫</span>' : value;
       key.setAttribute("aria-label", value === "delete" ? "Delete last character" : value === "space" ? "Space" : value);
       keyboard.appendChild(key);
     });
