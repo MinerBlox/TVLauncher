@@ -8,7 +8,7 @@
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", "Search movies and TV shows");
   panel.setAttribute("aria-hidden", "true");
-  panel.innerHTML = '<div class="search-shell"><header class="search-header"><button type="button" class="search-back" data-key="close" aria-label="Back to Home"><span aria-hidden="true">←</span> Back to Home</button><div class="search-query" aria-live="polite"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"></circle><path d="m20 20 9 9"></path></svg><span class="search-query-text">Search for a movie or TV show...</span><span class="search-caret"></span></div></header><div class="search-main"><div class="search-left"><div class="search-overline">SEARCH</div><div class="search-keyboard" aria-label="On-screen keyboard"></div><div class="search-suggestions"><div class="search-section-label">SUGGESTIONS</div><div class="search-suggestion-list"></div></div></div><div class="search-right"><div class="search-results-heading"><div><div class="search-overline">DISCOVER</div><h2>Movies &amp; TV</h2></div><span class="search-count"></span></div><div class="search-results" aria-live="polite"></div><a class="search-credit" href="https://www.tvmaze.com/" target="_blank" rel="noopener noreferrer">TV artwork via TVmaze</a></div></div><div class="search-detail" aria-hidden="true"></div></div>';
+  panel.innerHTML = '<div class="search-shell"><header class="search-header"><button type="button" class="search-back" data-key="close" aria-label="Back to Home"><span aria-hidden="true">←</span> Back to Home</button><div class="search-query" aria-live="polite"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"></circle><path d="m20 20 9 9"></path></svg><span class="search-query-text">Search for a movie or TV show...</span></div></header><div class="search-main"><div class="search-left"><div class="search-overline">SEARCH</div><div class="search-keyboard" aria-label="On-screen keyboard"></div><div class="search-suggestions"><div class="search-section-label">SUGGESTIONS</div><div class="search-suggestion-list"></div></div><button type="button" class="search-connect">Connect live search &amp; UK availability</button></div><div class="search-right"><div class="search-results-heading"><div><div class="search-overline">DISCOVER</div><h2>Movies &amp; TV</h2></div><span class="search-count"></span></div><div class="search-results" aria-live="polite"></div><div class="search-credit"></div></div></div><div class="search-detail" aria-hidden="true"></div><div class="search-setup" aria-hidden="true"><div class="search-setup-card"><button type="button" class="search-setup-back">← Back to search</button><h2>Live search</h2><p>Connect TMDB to search movies and TV shows and see where each title is available in the UK. Get your key from <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">TMDB API settings</a>. It is saved only on this TV.</p><label for="tmdb-token">TMDB API key or Read Access Token</label><input id="tmdb-token" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your key or token here"><div class="search-setup-actions"><button type="button" class="search-setup-save">Connect</button><button type="button" class="search-setup-remove">Remove token</button></div><p class="search-setup-message"></p><div class="search-setup-credits"><img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg" alt="TMDB"><span>This product uses the TMDB API but is not endorsed or certified by TMDB. UK streaming availability is supplied by JustWatch.</span></div></div></div></div>';
   document.body.appendChild(panel);
 
   const keyboard = panel.querySelector(".search-keyboard");
@@ -18,6 +18,10 @@
   const count = panel.querySelector(".search-count");
   const heading = panel.querySelector(".search-results-heading h2");
   const detail = panel.querySelector(".search-detail");
+  const setup = panel.querySelector(".search-setup");
+  const connectButton = panel.querySelector(".search-connect");
+  const tokenInput = setup.querySelector("#tmdb-token");
+  const setupMessage = setup.querySelector(".search-setup-message");
   const rows = [
     ["space", "delete"],
     Array.from("ABCDEF"),
@@ -33,7 +37,7 @@
       key.type = "button";
       key.className = "search-key" + (rowIndex === 0 ? " search-key-wide" : "");
       key.dataset.key = value;
-      key.textContent = value === "space" ? "Space" : value === "delete" ? "⌫  Delete" : value;
+      key.innerHTML = value === "space" ? '<svg class="search-space-symbol" viewBox="0 0 100 40" aria-hidden="true"><path d="M8 5 5 34 H95 L92 5"></path></svg>' : value === "delete" ? '<span class="search-delete-symbol" aria-hidden="true">⌫</span>' : value;
       key.setAttribute("aria-label", value === "delete" ? "Delete last character" : value === "space" ? "Space" : value);
       keyboard.appendChild(key);
     });
@@ -82,6 +86,14 @@
   ];
   const suggestionTerms = ["Anime", "A Christmas Carol", "Annie", "American Horror Story", "Archer", "Arcane", "Avatar: The Last Airbender", "Attack on Titan", "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Sci-Fi", "Thriller"];
   let previousFocus = null;
+  let tmdbToken = "";
+  try { tmdbToken = localStorage.getItem("tvlauncher_tmdb_token") || ""; } catch (error) {}
+  let remoteMatches = null;
+  let remoteQuery = null;
+  let remoteTimer = null;
+  let remoteSequence = 0;
+  let remoteError = "";
+  let detailSequence = 0;
   search.readOnly = true; // The custom TV keyboard owns text entry.
 
   function escapeHtml(value) {
@@ -161,13 +173,108 @@
     });
     pumpArtwork();
   }
+  // The live catalogue is optional; a token is kept only on this device.
+  function tmdbGet(path, token) {
+    const credential = token || tmdbToken;
+    const isApiKey = /^[a-f0-9]{32}$/i.test(credential);
+    const url = "https://api.themoviedb.org/3" + path + (isApiKey ? (path.indexOf("?") === -1 ? "?" : "&") + "api_key=" + encodeURIComponent(credential) : "");
+    const headers = isApiKey ? { Accept:"application/json" } : { Authorization:"Bearer " + credential, Accept:"application/json" };
+    return fetch(url, { headers:headers }).then(function (response) {
+      if (!response.ok) throw new Error(response.status === 401 ? "That token was not accepted by TMDB." : "TMDB is unavailable right now.");
+      return response.json();
+    });
+  }
+  function tmdbSearchPath(query) {
+    return query ? "/search/multi?language=en-GB&include_adult=false&page=1&query=" + encodeURIComponent(query)
+      : "/trending/all/week?language=en-GB";
+  }
+  function mapTmdb(raw) {
+    if (!raw || (raw.media_type !== "tv" && raw.media_type !== "movie")) return null;
+    const title = raw.title || raw.name;
+    if (!title) return null;
+    const imagePath = raw.backdrop_path || raw.poster_path;
+    const image = imagePath ? "https://image.tmdb.org/t/p/w780" + imagePath : null;
+    const full = imagePath ? "https://image.tmdb.org/t/p/original" + imagePath : null;
+    return {
+      title:title, type:raw.media_type === "tv" ? "TV SERIES" : "MOVIE",
+      year:(raw.release_date || raw.first_air_date || "").slice(0,4) || "—",
+      genres:[], bg:"#243039", accent:"#f7f8fa", art:escapeHtml(title),
+      image:image, imageFull:full, tmdbId:raw.id, tmdbMedia:raw.media_type
+    };
+  }
+  function scheduleRemoteSearch() {
+    clearTimeout(remoteTimer);
+    const query = normalized(search.value);
+    const sequence = ++remoteSequence;
+    if (!tmdbToken) { remoteMatches = null; remoteQuery = null; return; }
+    remoteMatches = null;
+    remoteQuery = null;
+    remoteTimer = setTimeout(function () {
+      tmdbGet(tmdbSearchPath(query)).then(function (data) {
+        if (sequence !== remoteSequence || query !== normalized(search.value)) return;
+        remoteMatches = (data.results || []).map(mapTmdb).filter(Boolean).slice(0,24);
+        remoteQuery = query;
+        remoteError = "";
+        render();
+      }).catch(function (error) {
+        if (sequence !== remoteSequence) return;
+        remoteError = error.message;
+        remoteMatches = null;
+        remoteQuery = null;
+        render();
+      });
+    }, query ? 320 : 80);
+  }
+  function openSetup() {
+    setup.classList.add("open");
+    setup.setAttribute("aria-hidden","false");
+    setupMessage.textContent = "";
+    tokenInput.value = tmdbToken;
+    if (typeof setfocus === "function") setfocus(tokenInput);
+    tokenInput.focus();
+  }
+  function closeSetup() {
+    if (!setup.classList.contains("open")) return;
+    tokenInput.blur();
+    setup.classList.remove("open");
+    setup.setAttribute("aria-hidden","true");
+    if (typeof setfocus === "function") setfocus(connectButton);
+  }
+  window.homeSearchSetupIsOpen = function () { return setup.classList.contains("open"); };
+  window.closeSearchSetup = closeSetup;
+  connectButton.addEventListener("click", openSetup);
+  setup.querySelector(".search-setup-back").addEventListener("click", closeSetup);
+  setup.querySelector(".search-setup-remove").addEventListener("click", function () {
+    tmdbToken = "";
+    try { localStorage.removeItem("tvlauncher_tmdb_token"); } catch (error) {}
+    remoteMatches = null;
+    remoteQuery = null;
+    ++remoteSequence;
+    setupMessage.textContent = "Live search disconnected. The built-in titles remain available.";
+    tokenInput.value = "";
+    render();
+  });
+  setup.querySelector(".search-setup-save").addEventListener("click", function () {
+    const candidate = tokenInput.value.trim();
+    if (!candidate) { setupMessage.textContent = "Paste your TMDB API key or Read Access Token first."; return; }
+    setupMessage.textContent = "Connecting…";
+    tmdbGet("/configuration",candidate).then(function () {
+      tmdbToken = candidate;
+      try { localStorage.setItem("tvlauncher_tmdb_token",candidate); }
+      catch (error) { setupMessage.textContent = "Connected for this session; this TV could not save the token."; }
+      remoteError = "";
+      closeSetup();
+      render();
+      scheduleRemoteSearch();
+    }).catch(function (error) { setupMessage.textContent = error.message; });
+  });
   function render() {
     const query = normalized(search.value);
     queryText.textContent = search.value || "Search for a movie or TV show...";
     queryText.classList.toggle("placeholder", !search.value);
     document.body.classList.toggle("home-query-present", !!search.value);
     heading.textContent = query ? "Results" : "Movies & TV";
-    const matches = visibleItems(query);
+    const matches = tmdbToken && remoteQuery === query && remoteMatches ? remoteMatches : visibleItems(query);
     count.textContent = matches.length + (matches.length === 1 ? " TITLE" : " TITLES");
     results.innerHTML = "";
     if (!matches.length) {
@@ -191,7 +298,7 @@
     const matchesTerms = query ? suggestionTerms.filter(function (term) {
       return term.toLocaleLowerCase().startsWith(query);
     }) : ["Severance", "Dune: Part Two", "The Bear", "Anime", "Comedy"];
-    const titleTerms = query ? catalogue.map(function (item) { return item.title; }).filter(function (title) {
+    const titleTerms = query ? matches.map(function (item) { return item.title; }).filter(function (title) {
       return title.toLocaleLowerCase().startsWith(query);
     }) : [];
     const unique = [];
@@ -205,11 +312,14 @@
       button.addEventListener("click", function () {
         search.value = term;
         render();
+        scheduleRemoteSearch();
         if (typeof setfocus === "function") setfocus(keyboard.querySelector(".search-key"));
       });
       suggestions.appendChild(button);
     });
     if (!unique.length) suggestions.innerHTML = '<div class="search-no-suggestions">No suggestions yet</div>';
+    connectButton.textContent = tmdbToken ? (remoteError ? "Live search unavailable · Manage connection" : "Live search connected · Manage") : "Connect live search & UK availability";
+    panel.querySelector(".search-credit").innerHTML = tmdbToken && remoteMatches ? 'Artwork via <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a> · UK providers by JustWatch' : 'TV artwork via <a href="https://www.tvmaze.com/" target="_blank" rel="noopener noreferrer">TVmaze</a>';
   }
   function filterApps() {
     const query = normalized(search.value);
@@ -225,20 +335,87 @@
     filterApps();
     if (typeof settle === "function") settle();
   }
+  function providerImage(path) {
+    return path && /^\/[a-zA-Z0-9_.\/-]+$/.test(path) && path.indexOf("..") === -1
+      ? "https://image.tmdb.org/t/p/w92" + path : "";
+  }
+  function showProviders(item, data) {
+    const container = detail.querySelector(".search-provider-list");
+    const status = detail.querySelector(".search-provider-status");
+    const link = detail.querySelector(".search-provider-link");
+    const gb = data && data.results && data.results.GB;
+    if (!gb) {
+      status.textContent = "No UK streaming availability is currently listed for this title.";
+      return;
+    }
+    const groups = [
+      ["Stream",gb.flatrate],["Free",gb.free],["With ads",gb.ads],
+      ["Rent",gb.rent],["Buy",gb.buy]
+    ];
+    let total = 0;
+    groups.forEach(function (group) {
+      if (!Array.isArray(group[1]) || !group[1].length) return;
+      const section = document.createElement("section");
+      section.className = "search-provider-group";
+      section.innerHTML = "<h3>" + group[0] + "</h3>";
+      const list = document.createElement("div");
+      list.className = "search-provider-entries";
+      group[1].forEach(function (provider) {
+        total++;
+        const entry = document.createElement("div");
+        entry.className = "search-provider";
+        const logo = providerImage(provider.logo_path);
+        entry.innerHTML = (logo ? '<img alt="" src="' + logo + '">' : "") + "<span>" + escapeHtml(provider.provider_name || "Unknown service") + "</span>";
+        list.appendChild(entry);
+      });
+      section.appendChild(list);
+      container.appendChild(section);
+    });
+    status.textContent = total ? "" : "No UK streaming availability is currently listed for this title.";
+    if (gb.link && gb.link.indexOf("https://www.themoviedb.org/") === 0) {
+      link.href = gb.link;
+      link.hidden = false;
+    }
+  }
+  function loadProviders(item, sequence) {
+    const status = detail.querySelector(".search-provider-status");
+    if (!tmdbToken) {
+      status.innerHTML = 'For a complete UK provider list, <button type="button" class="search-detail-connect">connect live search</button>.';
+      status.querySelector("button").addEventListener("click", openSetup);
+      return;
+    }
+    status.textContent = "Checking UK availability…";
+    const lookup = item.tmdbId
+      ? Promise.resolve(item)
+      : tmdbGet(tmdbSearchPath(item.title)).then(function (data) {
+          const candidates = (data.results || []).map(mapTmdb).filter(Boolean);
+          return candidates.filter(function (result) {
+            return normalized(result.title) === normalized(item.title) && result.type === item.type;
+          }).sort(function (a,b) {
+            return (a.year === item.year ? -1 : 0) - (b.year === item.year ? -1 : 0);
+          })[0] || null;
+        });
+    lookup.then(function (match) {
+      if (!match) throw new Error("This title was not found in the live catalogue.");
+      return tmdbGet("/" + match.tmdbMedia + "/" + match.tmdbId + "/watch/providers");
+    }).then(function (data) {
+      if (sequence === detailSequence && detail.classList.contains("open")) showProviders(item,data);
+    }).catch(function (error) {
+      if (sequence === detailSequence) status.textContent = error.message || "Availability could not be loaded.";
+    });
+  }
   function showDetail(item) {
-    detail.innerHTML = '<button type="button" class="search-detail-back" aria-label="Back to results">← Back to results</button><div class="search-detail-art" style="--art-bg:' + item.bg + ';--art-accent:' + item.accent + '"><span>' + item.art + '</span></div><div class="search-detail-copy"><span class="search-overline">' + item.type + ' · ' + item.year + '</span><h2>' + escapeHtml(item.title) + '</h2><p>' + item.genres.map(escapeHtml).join(" · ") + '</p><button type="button" class="search-detail-search">Browse apps <span aria-hidden="true">↗</span></button></div>';
+    const sequence = ++detailSequence;
+    detail.innerHTML = '<button type="button" class="search-detail-back" aria-label="Back to results">← Back to results</button><div class="search-detail-art" style="--art-bg:' + item.bg + ';--art-accent:' + item.accent + '"><span>' + item.art + '</span></div><div class="search-detail-copy"><span class="search-overline">' + item.type + ' · ' + item.year + '</span><h2>' + escapeHtml(item.title) + '</h2><p>' + item.genres.map(escapeHtml).join(" · ") + '</p><h3 class="search-provider-title">Where to watch in the UK</h3><div class="search-provider-status"></div><div class="search-provider-list"></div><a class="search-provider-link" hidden target="_blank" rel="noopener noreferrer">See options on TMDB ↗</a><p class="search-detail-attribution">Availability data by JustWatch · TMDB</p></div>';
     if (item.image) detail.querySelector(".search-detail-art").style.backgroundImage = 'linear-gradient(180deg,transparent,rgba(0,0,0,.4)),url("' + (item.imageFull || item.image).replace(/"/g,"%22") + '")';
     detail.classList.add("open");
     detail.setAttribute("aria-hidden", "false");
     detail.querySelector(".search-detail-back").addEventListener("click", closeDetail);
-    detail.querySelector(".search-detail-search").addEventListener("click", function () {
-      search.value = "";
-      render();
-      openDrawer();
-    });
+    loadProviders(item,sequence);
     if (typeof setfocus === "function") setfocus(detail.querySelector(".search-detail-back"));
   }
   function closeDetail() {
+    ++detailSequence;
     detail.classList.remove("open");
     detail.setAttribute("aria-hidden", "true");
     if (typeof setfocus === "function") setfocus(results.querySelector(".search-result") || keyboard.querySelector(".search-key"));
@@ -250,6 +427,7 @@
     else if (key === "space") search.value += " ";
     else search.value += key.toLowerCase();
     render();
+    scheduleRemoteSearch();
   }
   window.homeKeyboardIsOpen = function () { return panel.classList.contains("open"); };
   window.openHomeKeyboard = function () {
@@ -262,10 +440,12 @@
     document.body.classList.add("home-search-active");
     if (typeof keyboardmode !== "undefined") keyboardmode = true;
     queueArtwork(visibleItems(normalized(search.value)));
+    scheduleRemoteSearch();
     if (typeof setfocus === "function") setfocus(keyboard.querySelector(".search-key:nth-child(3)"));
   };
   window.closeHomeKeyboard = function (restore) {
     if (!homeKeyboardIsOpen()) return;
+    closeSetup();
     closeDetail();
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
@@ -279,7 +459,7 @@
     const button = event.target.closest("button[data-key]");
     if (button) pressKey(button.dataset.key);
   });
-  search.addEventListener("input", render);
+  search.addEventListener("input", function () { render(); scheduleRemoteSearch(); });
   search.addEventListener("click", function (event) { event.preventDefault(); openHomeKeyboard(); });
   search.addEventListener("focus", function () { search.blur(); openHomeKeyboard(); });
   document.querySelectorAll("#featurecards .featuretile").forEach(function (tile,index) {
@@ -294,6 +474,10 @@
   });
   window.addEventListener("keydown", function (event) {
     if (!homeKeyboardIsOpen()) return;
+    if (setup.classList.contains("open")) {
+      if (event.key === "Escape") { event.preventDefault(); closeSetup(); }
+      return;
+    }
     if (event.key === "Escape") {
       event.preventDefault();
       if (detail.classList.contains("open")) closeDetail();
