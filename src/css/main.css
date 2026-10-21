@@ -1906,3 +1906,241 @@ body.home-query-present #appsearch { color:#323438 !important; }
 #homekeyboard .search-detail-search.dfocus {
   box-shadow:0 .7vh 1.8vh rgba(38,48,59,.18);
 }
+
+/* Search input and remote focus: no cursor marker or resting key boxes. */
+#homekeyboard .search-caret { display:none !important; }
+#homekeyboard .search-query { caret-color:transparent; }
+#homekeyboard .search-key,
+#homekeyboard .search-key-wide {
+  border:2px solid transparent;
+  border-radius:.6vh;
+  background:transparent;
+  box-shadow:none;
+  color:#242a31;
+  font-size:1.42vw;
+  font-weight:750;
+  transform:none;
+}
+#homekeyboard .search-key-wide { font-size:1.42vw; }
+#homekeyboard .search-key:hover,
+#homekeyboard .search-key.dfocus,
+#homekeyboard .search-key:focus-visible {
+  border-color:#535b65;
+  background:rgba(255,255,255,.5);
+  color:#111820;
+  transform:none;
+  box-shadow:none;
+}
+#homekeyboard .search-space-symbol {
+  width:82%;
+  height:4.45vh;
+  overflow:visible;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:3.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+#homekeyboard .search-delete-symbol {
+  font-size:3.15vw;
+  font-weight:900;
+  line-height:1;
+}
+#homekeyboard .search-suggestions {
+  margin-top:2.35vh;
+  border-top:1px solid rgba(105,116,128,.28);
+  padding-top:1.35vh;
+}
+#homekeyboard .search-suggestion:hover,
+#homekeyboard .search-suggestion.dfocus { background:rgba(33,43,55,.08); color:#1f2730; }
+#homekeyboard .search-connect {
+  display:block;
+  margin:1.6vh 0 0;
+  padding:.65vh .55vw;
+  border:0;
+  background:transparent;
+  color:#687582;
+  text-align:left;
+  font:600 .91vw Arial,Helvetica,sans-serif;
+  cursor:pointer;
+}
+#homekeyboard .search-connect:hover,
+#homekeyboard .search-connect.dfocus {
+  color:#242e38;
+  text-decoration:underline;
+}
+#homekeyboard .search-results {
+  padding:3.25vh 2.5vw 4vh;
+  margin:-3.25vh -2.5vw -4vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+#homekeyboard .search-result { z-index:0; }
+#homekeyboard .search-result:hover,
+#homekeyboard .search-result.dfocus { z-index:2; }
+#homekeyboard .search-credit a { color:inherit; text-decoration:none; }
+#homekeyboard .search-detail { z-index:5; }
+#homekeyboard .search-detail-copy {
+  flex:1;
+  min-width:0;
+  max-height:75vh;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+#homekeyboard .search-provider-title {
+  margin:3.5vh 0 1.4vh;
+  color:#26313b;
+  font-size:1.58vw;
+  font-weight:700;
+}
+#homekeyboard .search-provider-status {
+  color:#697681;
+  font-size:1.12vw;
+  line-height:1.45;
+}
+#homekeyboard .search-provider-status:empty { display:none; }
+#homekeyboard .search-detail-connect {
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#25333e;
+  font:inherit;
+  text-decoration:underline;
+  cursor:pointer;
+}
+#homekeyboard .search-provider-group { margin:1.3vh 0 1.8vh; }
+#homekeyboard .search-provider-group h3 {
+  margin:0 0 .7vh;
+  color:#6a7682;
+  font-size:.89vw;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+#homekeyboard .search-provider-entries {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.65vw;
+}
+#homekeyboard .search-provider {
+  display:flex;
+  align-items:center;
+  gap:.55vw;
+  min-height:4.2vh;
+  padding:.35vh .7vw .35vh .35vw;
+  border:1px solid rgba(100,112,124,.15);
+  border-radius:.75vh;
+  background:rgba(255,255,255,.82);
+  color:#303b45;
+  font-size:.91vw;
+  font-weight:600;
+}
+#homekeyboard .search-provider img {
+  width:3.5vh;
+  height:3.5vh;
+  border-radius:.55vh;
+  object-fit:contain;
+}
+#homekeyboard .search-provider-link {
+  display:inline-block;
+  margin-top:1.5vh;
+  color:#344451;
+  font-size:1vw;
+  text-decoration:underline;
+}
+#homekeyboard .search-provider-link[hidden] { display:none; }
+#homekeyboard .search-detail-attribution {
+  margin-top:2vh;
+  font-size:.79vw !important;
+  color:#8b959f !important;
+}
+#homekeyboard .search-setup {
+  position:absolute;
+  inset:0;
+  z-index:6;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(250,251,252,.95);
+  backdrop-filter:blur(12px);
+}
+#homekeyboard .search-setup.open { display:flex; }
+#homekeyboard .search-setup-card {
+  width:min(52vw,950px);
+  padding:3vh 3vw;
+  border:1px solid rgba(125,137,149,.22);
+  border-radius:1.8vh;
+  background:#fff;
+  box-shadow:0 1.5vh 5vh rgba(38,48,60,.13);
+}
+#homekeyboard .search-setup-back {
+  border:0;
+  background:transparent;
+  padding:0;
+  color:#5e6b77;
+  font:600 1vw Arial,Helvetica,sans-serif;
+  cursor:pointer;
+}
+#homekeyboard .search-setup-card h2 {
+  margin:2.5vh 0 1vh;
+  font-size:2.6vw;
+  letter-spacing:-.05em;
+}
+#homekeyboard .search-setup-card p {
+  color:#5b6976;
+  font-size:1.08vw;
+  line-height:1.4;
+}
+#homekeyboard .search-setup-card label {
+  display:block;
+  margin:2.8vh 0 .8vh;
+  font-size:1vw;
+  font-weight:700;
+}
+#homekeyboard #tmdb-token {
+  width:100%;
+  box-sizing:border-box;
+  padding:1.3vh 1vw;
+  border:1px solid #bbc5cd;
+  border-radius:.6vh;
+  outline:0;
+  color:#222a32;
+  background:#fbfcfd;
+  font:1.12vw Arial,Helvetica,sans-serif;
+  -webkit-text-security:disc;
+}
+#homekeyboard #tmdb-token:focus { border-color:#556672; }
+#homekeyboard .search-setup-actions {
+  display:flex;
+  gap:1vw;
+  margin-top:1.5vh;
+}
+#homekeyboard .search-setup-actions button {
+  border:1px solid #c4ccd2;
+  border-radius:.6vh;
+  padding:1vh 1.5vw;
+  background:#fff;
+  color:#29343f;
+  font:600 1vw Arial,Helvetica,sans-serif;
+  cursor:pointer;
+}
+#homekeyboard .search-setup-actions .search-setup-save {
+  background:#283642;
+  border-color:#283642;
+  color:#fff;
+}
+#homekeyboard .search-setup-card .search-setup-message {
+  min-height:2.2vh;
+  color:#7a4b45;
+}
+#homekeyboard .search-setup-credits {
+  display:flex;
+  align-items:center;
+  gap:1vw;
+  border-top:1px solid #e5e9ed;
+  padding-top:1.7vh;
+  color:#818d97;
+  font-size:.76vw;
+  line-height:1.35;
+}
+#homekeyboard .search-setup-credits img { width:5.5vw; height:auto; flex:none; }
