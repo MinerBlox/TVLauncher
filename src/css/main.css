@@ -2216,3 +2216,81 @@ body.home-query-present #appsearch { color:#323438 !important; }
 #homekeyboard #watchmode-token:focus { border-color:#556672; }
 
 #homekeyboard .search-result-image { object-position:center 24%; }
+
+/* Search controls keep the same quiet, borderless treatment as the home screen. */
+#homekeyboard .search-back,
+#homekeyboard .search-back:hover,
+#homekeyboard .search-back.dfocus,
+#homekeyboard .search-back:focus-visible {
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+#homekeyboard .search-back:hover,
+#homekeyboard .search-back.dfocus,
+#homekeyboard .search-back:focus-visible { color:#1f6bc3; }
+#homekeyboard .search-keyboard { grid-template-columns:repeat(12,minmax(0,1fr)); }
+#homekeyboard .search-key { grid-column:span 2; }
+#homekeyboard .search-key[data-key="space"] { grid-column:span 9; }
+#homekeyboard .search-key[data-key="delete"] { grid-column:span 3; }
+#homekeyboard .search-space-symbol {
+  display:block;
+  width:auto;
+  height:auto;
+  font:400 3.1vw/1 "Segoe UI Symbol","Arial Unicode MS",sans-serif;
+  transform:scaleX(3.1);
+  transform-origin:center;
+}
+#homekeyboard .search-delete-symbol { font-size:2.45vw; }
+
+/* Draw the resting and pulsing dots at the exact same centers, behind both panels. */
+#homekeyboard::before,#servicegrid::before { display:none !important; }
+#homekeyboard .ambient-dot-canvas,#servicegrid .ambient-dot-canvas {
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+#servicegrid .ambient-dot-canvas { filter:blur(1.1px); }
+
+/* The app shelf's recycled home art has a transparent hit target and no pale focus rim. */
+#servicegrid .home-card,
+#servicegrid .home-card:hover,
+#servicegrid .home-card.dfocus,
+#servicegrid .home-card:focus-visible {
+  appearance:none;
+  -webkit-appearance:none;
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+#servicegrid .home-card:hover,
+#servicegrid .home-card.dfocus,
+#servicegrid .home-card:focus-visible {
+  filter:drop-shadow(0 0 2vh var(--card-glow)) drop-shadow(0 1vh 1.2vh var(--card-glow));
+}
+#servicegrid .home-card .service-artwork {
+  clip-path:inset(.24vh .22vw round 2.4vh);
+  background-color:transparent !important;
+  box-shadow:none !important;
+}
+#servicegrid .home-card:hover .service-artwork,
+#servicegrid .home-card.dfocus .service-artwork,
+#servicegrid .home-card:focus-visible .service-artwork { box-shadow:none !important; }
+#servicegrid .home-card::before,
+#servicegrid .home-card::after { content:none !important; }
+#servicegrid .home-card[data-brand="appletv"] { --card-glow:rgba(24,24,24,.72); }
+#servicegrid .home-card[data-brand="arcade"] { --card-glow:rgba(251,29,73,.7); }
+#servicegrid .home-card[data-brand="fitness"] { --card-glow:rgba(25,28,30,.7); }
+#servicegrid .home-card[data-brand="music"] { --card-glow:rgba(252,33,53,.7); }
+#servicegrid .home-card[data-brand="appstore"] { --card-glow:rgba(0,80,226,.7); }
+/* Match each photo crop to its original tile width after moving the five apps. */
+#servicegrid .home-card[data-brand="appletv"] { left:74.52vw; width:16.39vw; }
+#servicegrid .home-card[data-brand="arcade"] { left:10.47vw; width:14.11vw; }
+#servicegrid .home-card[data-brand="fitness"] { left:27vw; width:14.29vw; }
+#servicegrid .home-card[data-brand="music"] { left:42.94vw; width:14.29vw; }
+#servicegrid .home-card[data-brand="appstore"] { left:58.16vw; width:15.67vw; }
