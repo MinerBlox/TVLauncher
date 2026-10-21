@@ -238,7 +238,7 @@
     tokenInput.blur();
     setup.classList.remove("open");
     setup.setAttribute("aria-hidden","true");
-    if (typeof setfocus === "function") setfocus(connectButton);
+    if (typeof setfocus === "function") setfocus(detail.classList.contains("open") ? detail.querySelector(".search-detail-connect") || detail.querySelector(".search-detail-back") : connectButton);
   }
   window.homeSearchSetupIsOpen = function () { return setup.classList.contains("open"); };
   window.closeSearchSetup = closeSetup;
