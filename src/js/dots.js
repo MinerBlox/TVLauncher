@@ -88,3 +88,63 @@
   }
   if (!window.matchMedia || !window.matchMedia("(prefers-reduced-motion: reduce)").matches) requestAnimationFrame(paint);
 })();
+
+/* Search and the app shelf use one canvas for both resting dots and the wave.
+   This keeps each growing dot on its original center and below every control. */
+(function () {
+  const panels = ["homekeyboard", "servicegrid"].map(function (id) {
+    const panel = document.getElementById(id);
+    if (!panel) return null;
+    const canvas = document.createElement("canvas");
+    canvas.className = "ambient-dot-canvas";
+    canvas.setAttribute("aria-hidden", "true");
+    panel.insertBefore(canvas, panel.firstChild);
+    const context = canvas.getContext("2d");
+    return context ? { panel:panel, canvas:canvas, context:context, width:0, height:0, dots:[] } : null;
+  }).filter(Boolean);
+  if (!panels.length) return;
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize(panelState) {
+    const bounds = panelState.panel.getBoundingClientRect();
+    panelState.width = Math.round(bounds.width);
+    panelState.height = Math.round(bounds.height);
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    panelState.canvas.width = Math.round(panelState.width * pixelRatio);
+    panelState.canvas.height = Math.round(panelState.height * pixelRatio);
+    panelState.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    panelState.dots = [];
+    const stepX = panelState.width * .02717;
+    const stepY = panelState.height * .0482;
+    const startX = panelState.width * .024485;
+    const startY = panelState.height * .0314;
+    for (let col = 0, x = startX; x < panelState.width + 2; col++, x += stepX) {
+      for (let row = 0, y = startY; y < panelState.height + 2; row++, y += stepY) {
+        panelState.dots.push({ x:x, y:y, delay:2200 + col * 76 + (row % 4) * 45 });
+      }
+    }
+  }
+  panels.forEach(resize);
+  window.addEventListener("resize", function () { panels.forEach(resize); });
+  const started = performance.now();
+  let lastFrame = 0;
+  function paint(now) {
+    requestAnimationFrame(paint);
+    if (document.hidden || now - lastFrame < 32) return;
+    lastFrame = now;
+    const phase = (now - started) % 9000;
+    panels.forEach(function (state) {
+      if (!state.panel.classList.contains("open")) return;
+      const context = state.context;
+      context.clearRect(0, 0, state.width, state.height);
+      state.dots.forEach(function (dot) {
+        const age = phase - dot.delay;
+        const pulse = !still && age > 0 && age < 900 ? Math.sin(Math.PI * age / 900) : 0;
+        context.beginPath();
+        context.arc(dot.x, dot.y, 1.65 + pulse * 4.65, 0, Math.PI * 2);
+        context.fillStyle = "rgba(133,143,160," + (.30 + pulse * .5).toFixed(3) + ")";
+        context.fill();
+      });
+    });
+  }
+  requestAnimationFrame(paint);
+})();
