@@ -8,7 +8,7 @@
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", "Search movies and TV shows");
   panel.setAttribute("aria-hidden", "true");
-  panel.innerHTML = '<div class="search-shell"><header class="search-header"><button type="button" class="search-back" data-key="close" aria-label="Back to Home"><span aria-hidden="true">←</span> Back to Home</button><div class="search-query" aria-live="polite"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"></circle><path d="m20 20 9 9"></path></svg><span class="search-query-text">Search for a movie or TV show...</span><span class="search-caret"></span></div></header><div class="search-main"><div class="search-left"><div class="search-overline">SEARCH</div><div class="search-keyboard" aria-label="On-screen keyboard"></div><div class="search-suggestions"><div class="search-section-label">SUGGESTIONS</div><div class="search-suggestion-list"></div></div></div><div class="search-right"><div class="search-results-heading"><div><div class="search-overline">DISCOVER</div><h2>Movies &amp; TV</h2></div><span class="search-count"></span></div><div class="search-results" aria-live="polite"></div></div></div><div class="search-detail" aria-hidden="true"></div></div>';
+  panel.innerHTML = '<div class="search-shell"><header class="search-header"><button type="button" class="search-back" data-key="close" aria-label="Back to Home"><span aria-hidden="true">←</span> Back to Home</button><div class="search-query" aria-live="polite"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"></circle><path d="m20 20 9 9"></path></svg><span class="search-query-text">Search for a movie or TV show...</span><span class="search-caret"></span></div></header><div class="search-main"><div class="search-left"><div class="search-overline">SEARCH</div><div class="search-keyboard" aria-label="On-screen keyboard"></div><div class="search-suggestions"><div class="search-section-label">SUGGESTIONS</div><div class="search-suggestion-list"></div></div></div><div class="search-right"><div class="search-results-heading"><div><div class="search-overline">DISCOVER</div><h2>Movies &amp; TV</h2></div><span class="search-count"></span></div><div class="search-results" aria-live="polite"></div><a class="search-credit" href="https://www.tvmaze.com/" target="_blank" rel="noopener noreferrer">TV artwork via TVmaze</a></div></div><div class="search-detail" aria-hidden="true"></div></div>';
   document.body.appendChild(panel);
 
   const keyboard = panel.querySelector(".search-keyboard");
@@ -91,11 +91,71 @@
   }
   function normalized(value) { return value.trim().toLocaleLowerCase(); }
   function visibleItems(query) {
-    if (!query) return catalogue;
+    if (!query) {
+      const featured = ["Severance","The Bear","The Last of Us","Slow Horses","Arcane","The White Lotus","Silo","Stranger Things","American Horror Story"];
+      return catalogue.slice().sort(function (a,b) {
+        const ai = featured.indexOf(a.title), bi = featured.indexOf(b.title);
+        return (ai < 0 ? 100 : ai) - (bi < 0 ? 100 : bi);
+      });
+    }
     return catalogue.filter(function (item) {
       return item.title.toLocaleLowerCase().includes(query) ||
         item.genres.some(function (genre) { return genre.includes(query); });
+    }).sort(function (a,b) {
+      function rank(item) {
+        const title = item.title.toLocaleLowerCase();
+        if (title.startsWith(query)) return 0;
+        if (title.includes(query)) return 1;
+        return 2;
+      }
+      return rank(a) - rank(b);
     });
+  }
+
+  // TVmaze allows direct use of its show images. Text artwork remains available offline.
+  const artworkQueue = [];
+  let artworkInFlight = 0;
+  function applyArtwork(card,item) {
+    if (!item.image || card.classList.contains("has-image")) return;
+    const artwork = card.querySelector(".search-result-art");
+    const img = document.createElement("img");
+    img.className = "search-result-image";
+    img.alt = "";
+    img.decoding = "async";
+    img.src = item.image;
+    img.addEventListener("load", function () { card.classList.add("has-image"); });
+    img.addEventListener("error", function () { img.remove(); item.image = null; });
+    artwork.insertBefore(img, artwork.firstChild);
+    card.style.setProperty("--poster-url", 'url("' + item.image.replace(/"/g,"%22") + '")');
+  }
+  function pumpArtwork() {
+    while (artworkInFlight < 2 && artworkQueue.length) {
+      const item = artworkQueue.shift();
+      artworkInFlight++;
+      fetch("https://api.tvmaze.com/singlesearch/shows?q=" + encodeURIComponent(item.title))
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (show) {
+          if (!show || !show.image || normalized(show.name) !== normalized(item.title)) return;
+          item.image = show.image.medium || show.image.original;
+          item.imageFull = show.image.original || item.image;
+          results.querySelectorAll(".search-result").forEach(function (card) {
+            if (card.dataset.title === item.title) applyArtwork(card,item);
+          });
+        })
+        .catch(function () {})
+        .then(function () {
+          artworkInFlight--;
+          setTimeout(pumpArtwork,250);
+        });
+    }
+  }
+  function queueArtwork(items) {
+    items.slice(0,12).forEach(function (item) {
+      if (item.type !== "TV SERIES" || item.image || item.artworkQueued) return;
+      item.artworkQueued = true;
+      artworkQueue.push(item);
+    });
+    pumpArtwork();
   }
   function render() {
     const query = normalized(search.value);
@@ -113,13 +173,16 @@
         const card = document.createElement("button");
         card.type = "button";
         card.className = "search-result";
+        card.dataset.title = item.title;
         card.style.setProperty("--art-bg", item.bg);
         card.style.setProperty("--art-accent", item.accent);
         card.innerHTML = '<span class="search-result-art" aria-hidden="true"><span class="search-result-symbol"></span><strong>' + item.art + '</strong><small>' + item.type + '</small></span><span class="search-result-name">' + escapeHtml(item.title) + '</span>';
         card.setAttribute("aria-label", item.title + ", " + item.type.toLowerCase() + ", " + item.year);
         card.addEventListener("click", function () { showDetail(item); });
         results.appendChild(card);
+        applyArtwork(card,item);
       });
+      if (panel.classList.contains("open")) queueArtwork(matches);
     }
     const matchesTerms = query ? suggestionTerms.filter(function (term) {
       return term.toLocaleLowerCase().startsWith(query);
@@ -160,6 +223,7 @@
   }
   function showDetail(item) {
     detail.innerHTML = '<button type="button" class="search-detail-back" aria-label="Back to results">← Back to results</button><div class="search-detail-art" style="--art-bg:' + item.bg + ';--art-accent:' + item.accent + '"><span>' + item.art + '</span></div><div class="search-detail-copy"><span class="search-overline">' + item.type + ' · ' + item.year + '</span><h2>' + escapeHtml(item.title) + '</h2><p>' + item.genres.map(escapeHtml).join(" · ") + '</p><button type="button" class="search-detail-search">Browse apps <span aria-hidden="true">↗</span></button></div>';
+    if (item.image) detail.querySelector(".search-detail-art").style.backgroundImage = 'linear-gradient(180deg,transparent,rgba(0,0,0,.4)),url("' + (item.imageFull || item.image).replace(/"/g,"%22") + '")';
     detail.classList.add("open");
     detail.setAttribute("aria-hidden", "false");
     detail.querySelector(".search-detail-back").addEventListener("click", closeDetail);
@@ -193,6 +257,7 @@
     panel.setAttribute("aria-hidden", "false");
     document.body.classList.add("home-search-active");
     if (typeof keyboardmode !== "undefined") keyboardmode = true;
+    queueArtwork(visibleItems(normalized(search.value)));
     if (typeof setfocus === "function") setfocus(keyboard.querySelector(".search-key:nth-child(3)"));
   };
   window.closeHomeKeyboard = function (restore) {
@@ -213,11 +278,9 @@
   search.addEventListener("input", render);
   search.addEventListener("click", function (event) { event.preventDefault(); openHomeKeyboard(); });
   search.addEventListener("focus", function () { search.blur(); openHomeKeyboard(); });
-  document.querySelectorAll("#featurecards .featuretile").forEach(function (tile) {
+  document.querySelectorAll("#featurecards .featuretile").forEach(function (tile,index) {
     tile.addEventListener("click", function () {
-      search.value = tile.getAttribute("data-search") || "";
-      render();
-      openDrawer();
+      if (typeof activateHomeCard === "function") activateHomeCard(index);
     });
   });
   drawer.addEventListener("click", function () {
