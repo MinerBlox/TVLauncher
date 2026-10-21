@@ -2709,6 +2709,87 @@ body.home-query-present #appsearch { color:#323438 !important; }
   }
 }
 
+/* Keep the animated greeting as one unbroken line of identical type. */
+#homehero h1 {
+  left:0 !important;
+  width:100% !important;
+  transform:none !important;
+  font:400 clamp(26px,2.05vw,38px)/1.2 Arial,Helvetica,sans-serif !important;
+  letter-spacing:-.035em;
+}
+
+/* The second row sits below the dock at its full card size. The viewport
+   clips it naturally, hinting at the additional shelf below. */
+#featurecards .next-row-peek { top:92.5vh; }
+#featurecards .next-row-peek > span {
+  box-sizing:border-box;
+  box-shadow:0 .7vh 1.5vh rgba(25,36,51,.17);
+}
+#featurecards .next-row-peek .service-artwork {
+  padding:0;
+  align-items:flex-start;
+  justify-content:center;
+}
+#featurecards .next-row-peek .service-artwork svg {
+  width:7.4vw;
+  height:9.8vh;
+}
+#featurecards .next-row-peek .service-artwork .service-logo {
+  width:80%;
+  height:72%;
+}
+
+/* Give the dock a visible translucent tint and a fine inner glass edge. */
+#featurecards::after {
+  background:linear-gradient(155deg,
+    rgba(222,233,243,.4),rgba(255,255,255,.12) 48%,rgba(220,231,242,.32));
+  -webkit-backdrop-filter:blur(8px) saturate(180%) brightness(1.12);
+  backdrop-filter:blur(8px) saturate(180%) brightness(1.12);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),
+             inset 1.5px 1.5px 0 rgba(255,255,255,.82),
+             inset 0 -1px 0 rgba(148,169,187,.18),
+             0 1.3vh 3.7vh rgba(45,53,62,.18);
+}
+
+/* TV remote Down/Up scrolls this pane; keep its position visible. */
+#homekeyboard .search-detail-copy {
+  min-height:0;
+  max-height:75vh;
+  overflow-y:auto;
+  padding-right:1.1vw;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(112,131,151,.56) rgba(212,222,231,.28);
+  scroll-behavior:smooth;
+}
+#homekeyboard .search-detail-copy::-webkit-scrollbar { width:.55vw; }
+#homekeyboard .search-detail-copy::-webkit-scrollbar-track {
+  border-radius:999px;
+  background:rgba(212,222,231,.28);
+}
+#homekeyboard .search-detail-copy::-webkit-scrollbar-thumb {
+  border:2px solid transparent;
+  border-radius:999px;
+  background:linear-gradient(#aab9c9,#7e93a8) padding-box;
+}
+
+/* Focus lifts the whole card, including its title, after the entrance. */
+#homekeyboard .search-result:hover,
+#homekeyboard .search-result.dfocus,
+#homekeyboard .search-result:focus-visible {
+  z-index:4;
+  transform:translateY(-.35vh) scale(1.07) !important;
+}
+#homekeyboard .search-result:hover .search-result-art,
+#homekeyboard .search-result.dfocus .search-result-art,
+#homekeyboard .search-result:focus-visible .search-result-art {
+  filter:brightness(1.07);
+}
+@media (prefers-reduced-motion:reduce) {
+  #homekeyboard .search-result:hover,
+  #homekeyboard .search-result.dfocus,
+  #homekeyboard .search-result:focus-visible { transform:none !important; }
+}
+
 /* Keep the dialog at its destination size while invisible so opening can animate. */
 #homekeyboard {
   position:fixed !important;

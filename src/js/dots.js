@@ -208,25 +208,26 @@
 
 // Keep the greeting alive without moving the rest of the reference layout.
 (function () {
-  const verb = document.querySelector("#homehero .home-verb");
-  if (!verb) return;
+  const greeting = document.querySelector("#homehero h1");
+  if (!greeting) return;
   const choices = ["watching","streaming","bingeing"];
   let current = Math.floor(Math.random() * choices.length);
-  verb.textContent = choices[current];
+  function write(word) { greeting.textContent = "What are we " + word + " today?"; }
+  write(choices[current]);
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function change() {
     const next = (current + 1 + Math.floor(Math.random() * 2)) % choices.length;
     const oldWord = choices[current], newWord = choices[next];
     current = next;
-    if (reduced) { verb.textContent = newWord; return; }
+    if (reduced) { write(newWord); return; }
     let step = oldWord.length;
     function erase() {
-      verb.textContent = oldWord.slice(0,--step);
+      write(oldWord.slice(0,--step));
       if (step > 0) setTimeout(erase,80);
       else { step = 0; setTimeout(type,180); }
     }
     function type() {
-      verb.textContent = newWord.slice(0,++step);
+      write(newWord.slice(0,++step));
       if (step < newWord.length) setTimeout(type,92);
     }
     erase();

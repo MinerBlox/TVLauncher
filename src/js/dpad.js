@@ -107,7 +107,7 @@ function contextelements() {
 
 // ---- focus
 function reveal(el) {
-	[appluncher,settingspane,folderpicker,document.querySelector("#homekeyboard .search-results"),document.querySelector("#homekeyboard .search-suggestion-list")].filter(Boolean).forEach((scroller) => {
+	[appluncher,settingspane,folderpicker,document.querySelector("#homekeyboard .search-results"),document.querySelector("#homekeyboard .search-suggestion-list"),document.querySelector("#homekeyboard .search-detail-copy")].filter(Boolean).forEach((scroller) => {
 		if(!scroller.contains(el)){ return; }
 		const box=scroller.getBoundingClientRect();
 		const rect=el.getBoundingClientRect();
@@ -398,6 +398,20 @@ function onkey(event) {
 	if(code===KEY_ENTER){
 		activate(dpadfocus);
 		return;
+	}
+	if((code===KEY_DOWN || code===KEY_UP) && contextname()==="homekeyboard"){
+		const copy=document.querySelector("#homekeyboard .search-detail.open .search-detail-copy");
+		if(copy){
+			const limit=Math.max(0,copy.scrollHeight-copy.clientHeight);
+			const saved=Number(copy.dataset.remoteScrollTarget);
+			const target=Number.isFinite(saved)?saved:copy.scrollTop;
+			const next=Math.max(0,Math.min(limit,target+(code===KEY_DOWN?1:-1)*Math.max(120,copy.clientHeight*.52)));
+			if(Math.abs(next-target)>1){
+				copy.dataset.remoteScrollTarget=String(next);
+				copy.scrollTop=next;
+				return;
+			}
+		}
 	}
 	if(code===KEY_DOWN && contextname()==="homekeyboard"){
 		const searchPanel=document.getElementById("homekeyboard");

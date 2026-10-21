@@ -122,14 +122,26 @@
       "&query=" + encodeURIComponent(query)
       : "/trending/all/week?language=en-GB&page=" + page;
   }
-  function sortByPopularity(tv,movies) {
+  function searchScore(item,query) {
+    const title = normalized(item.title).replace(/\s+/g," ");
+    const prefix = title === query ? 50 : title.indexOf(query) === 0 ? 35 :
+      title.split(/[^a-z0-9]+/).some(function (word) { return word.indexOf(query) === 0; }) ? 16 : 0;
+    const audience = item.originalLanguage === "en" ? 24 : 0;
+    const region = item.originCountries.some(function (country) {
+      return ["GB","US","IE","CA","AU","NZ"].indexOf(country) !== -1;
+    }) ? 9 : 0;
+    return prefix + audience + region +
+      Math.log1p(Math.max(0,item.popularity)) * 19 +
+      Math.log1p(Math.max(0,item.voteCount)) * 11;
+  }
+  function sortByPopularity(tv,movies,query) {
     const combined = [];
     const seen = Object.create(null);
     tv.concat(movies).forEach(function (item) {
       const key = item.tmdbMedia + ":" + item.tmdbId;
       if (!seen[key]) { seen[key] = true; combined.push(item); }
     });
-    return combined.sort(function (a,b) { return b.popularity - a.popularity; });
+    return combined.sort(function (a,b) { return searchScore(b,query) - searchScore(a,query); });
   }
   function preloadArtwork(items) {
     return Promise.all(items.map(function (item) {
@@ -163,10 +175,27 @@
       return searchTotals[media] && page > searchTotals[media] ? Promise.resolve({results:[],total_pages:searchTotals[media]}) :
         tmdbGet(tmdbSearchPath(query,media,page),undefined,signal);
     })).then(function (payloads) {
-      const tv = (payloads[0].results || []).map(function (raw) { return mapTmdb(Object.assign({},raw,{media_type:"tv"})); }).filter(Boolean);
-      const movies = (payloads[1].results || []).map(function (raw) { return mapTmdb(Object.assign({},raw,{media_type:"movie"})); }).filter(Boolean);
-      return {items:sortByPopularity(tv,movies),pages:{tv:page,movie:page},
-        totals:{tv:payloads[0].total_pages || 0,movie:payloads[1].total_pages || 0}};
+      const totals = {tv:payloads[0].total_pages || 0,movie:payloads[1].total_pages || 0};
+      const raw = {tv:(payloads[0].results || []).slice(),movie:(payloads[1].results || []).slice()};
+      const wider = [];
+      if (page === 1) ["tv","movie"].forEach(function (media) {
+        const breadth = media === "tv" && query.length >= 4 && query.length <= 5 ? 5 : 3;
+        for (let next = 2; next <= Math.min(breadth,totals[media]); next++) {
+          wider.push(tmdbGet(tmdbSearchPath(query,media,next),undefined,signal).then(function (data) {
+            raw[media] = raw[media].concat(data.results || []);
+            return true;
+          },function (error) {
+            if (error.name === "AbortError") throw error;
+            return false;
+          }));
+        }
+      });
+      return Promise.all(wider).then(function (outcomes) {
+        const tv = raw.tv.map(function (item) { return mapTmdb(Object.assign({},item,{media_type:"tv"})); }).filter(Boolean);
+        const movies = raw.movie.map(function (item) { return mapTmdb(Object.assign({},item,{media_type:"movie"})); }).filter(Boolean);
+        const lastPage = page === 1 && outcomes.every(Boolean) ? 3 : page;
+        return {items:sortByPopularity(tv,movies,query),pages:{tv:lastPage,movie:lastPage},totals:totals};
+      });
     });
   }
   function mapTmdb(raw) {
@@ -189,6 +218,9 @@
       tmdbId:Number(raw.id),
       tmdbMedia:raw.media_type,
       popularity:Number(raw.popularity) || 0,
+      voteCount:Number(raw.vote_count) || 0,
+      originalLanguage:raw.original_language || "",
+      originCountries:Array.isArray(raw.origin_country) ? raw.origin_country : [],
       seasons:null,
       episodes:null
     };
@@ -269,6 +301,7 @@
       '</span><span class="search-result-name">' + escapeHtml(item.title) + '</span>';
     card.setAttribute("aria-label",item.title + ", " + itemMeta(item));
     card.addEventListener("click",function () { showDetail(item); });
+    card.addEventListener("animationend",function () { card.classList.remove("is-entering"); },{once:true});
     applyArtwork(card,item);
     return card;
   }
